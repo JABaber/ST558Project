@@ -296,23 +296,89 @@ berryInfo <- function(berry = NULL, id = NULL, vars = all()){
 
 ``` r
 mons <- pokeList(pokemon = c("mewtwo", "garchomp", "froslass"), vars = c("name", "height"))
+as.data.frame(matrix(unlist(mons), nrow = length(mons), byrow = T))
 ```
+
+    ##         V1 V2
+    ## 1   mewtwo 20
+    ## 2 garchomp 19
+    ## 3 froslass 13
 
 ``` r
 squirtle <- pokeList(pokemon = "squirtle")
 ```
 
-``` r
-cheri <- berryInfo(berry = "cheri", vars = c("size", "smoothness"))
-```
-
 <https://bulbapedia.bulbagarden.net/wiki/Berry>
 
 ``` r
-# Initalize a list that
-allberries <- list()
-# Query the API for information on each of the original 151 pokemon, and store the information in our poke list
-for(i in 1:64){
-  allberries[[i]] <- getBerry(id = i)
-}
+berrySizes <- berryInfo(id = 1:64, vars = c("name", "size"))
+berrydf <- as.data.frame(matrix(unlist(berrySizes), nrow = length(berrySizes), byrow = T))
+colnames(berrydf) <- c("name", "size")
+berrydf
 ```
+
+    ##      name size
+    ## 1   cheri   20
+    ## 2  chesto   80
+    ## 3   pecha   40
+    ## 4   rawst   32
+    ## 5  aspear   50
+    ## 6   leppa   28
+    ## 7    oran   35
+    ## 8  persim   47
+    ## 9     lum   34
+    ## 10 sitrus   95
+    ## 11   figy  100
+    ## 12   wiki  115
+    ## 13   mago  126
+    ## 14  aguav   64
+    ## 15 iapapa  223
+    ## 16   razz  120
+    ## 17   bluk  108
+    ## 18  nanab   77
+    ## 19 wepear   74
+    ## 20  pinap   80
+    ## 21  pomeg  135
+    ## 22 kelpsy  150
+    ## 23 qualot  110
+    ## 24 hondew  162
+    ## 25  grepa  149
+    ## 26 tamato  200
+    ## 27  cornn   75
+    ## 28 magost  140
+    ## 29 rabuta  226
+    ## 30  nomel  285
+    ## 31 spelon  133
+    ## 32 pamtre  244
+    ## 33 watmel  250
+    ## 34  durin  280
+    ## 35  belue  300
+    ## 36   occa   90
+    ## 37 passho   33
+    ## 38  wacan  250
+    ## 39  rindo  156
+    ## 40  yache  135
+    ## 41 chople   77
+    ## 42  kebia   90
+    ## 43  shuca   42
+    ## 44   coba  278
+    ## 45 payapa  252
+    ## 46  tanga   42
+    ## 47 charti   28
+    ## 48  kasib  144
+    ## 49  haban   23
+    ## 50 colbur   39
+    ## 51 babiri  265
+    ## 52 chilan   34
+    ## 53 liechi  111
+    ## 54 ganlon   33
+    ## 55  salac   95
+    ## 56 petaya  237
+    ## 57 apicot   75
+    ## 58 lansat   97
+    ## 59  starf  153
+    ## 60 enigma  155
+    ## 61  micle   41
+    ## 62 custap  267
+    ## 63 jaboca   33
+    ## 64  rowap   52
