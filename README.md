@@ -20,17 +20,18 @@ rmarkdown::render('README.Rmd',
 ```
 
 ``` r
-# Define getPokemon function, can be done with string or id (pokedex) number
+# Define getPokemon function, can be done with vector of strings (names) or ID numbers, comes from pokemon endpoint
 getPokemon <- function(pokemon = NULL, id = NULL){
+  # If both pokemon and id arguments provided, throw this error
   if(!is.null(pokemon) & !is.null(id)){
     stop("Only can provide a vector of pokemon names or ids, not both")
   }
   # If a pokemon argument was provided
   if(!is.null(pokemon)){
-    # Check if the pokemon argument is a string
+    # Check if the pokemon argument is a character type
     if(!is.character(pokemon)){
-      # If not a string, show this error message
-      stop("Pokemon name must be provided as a string")
+      # If not a character type, show this error message
+      stop("Pokemon name must be provided as a string/character vector")
     }
     # Part of URL that doesn't change
     baseURL <- "https://pokeapi.co/api/v2/pokemon/"
@@ -46,7 +47,7 @@ getPokemon <- function(pokemon = NULL, id = NULL){
     # Check if the id argument was numeric
     if(!is.numeric(id)){
       # If it wasn't numeric, show this error message
-      stop("ID number must be a numeric value")
+      stop("ID number must be a numeric value/vector")
     }
     # Part of URL that doesn't change
     baseURL <- "https://pokeapi.co/api/v2/pokemon/"
@@ -63,17 +64,18 @@ getPokemon <- function(pokemon = NULL, id = NULL){
 ```
 
 ``` r
-# Define getPokeInfo function, can be done with string or id number
+# Define getPokeInfo function, can be done with strings (names) or id numbers, comes from pokemon-species endpoint
 getPokeInfo <- function(pokemon = NULL, id = NULL){
+  # Check if both pokemon and id arguments were passed, if so, throw this error message
   if(!is.null(pokemon) & !is.null(id)){
     stop("Only can provide a vector of pokemon names or ids, not both")
   }
   # If a pokemon argument was provided
   if(!is.null(pokemon)){
-    # Check if the pokemon argument is a string
+    # Check if the pokemon argument is a character type
     if(!is.character(pokemon)){
-      # If not a string, show this error message
-      stop("Pokemon name must be provided as a string")
+      # If not a character type, show this error message
+      stop("Pokemon name must be provided as a string/character vector")
     }
     # Part of URL that doesn't change
     baseURL <- "https://pokeapi.co/api/v2/pokemon-species/"
@@ -89,7 +91,7 @@ getPokeInfo <- function(pokemon = NULL, id = NULL){
     # Check if the id argument was numeric
     if(!is.numeric(id)){
       # If it wasn't numeric, show this error message
-      stop("ID number must be a numeric value")
+      stop("ID number must be a numeric value/vector")
     }
     # Part of URL that doesn't change
     baseURL <- "https://pokeapi.co/api/v2/pokemon-species/"
@@ -106,25 +108,34 @@ getPokeInfo <- function(pokemon = NULL, id = NULL){
 ```
 
 ``` r
+# Function that combines the data from the pokemon endpoint and the pokemon-species endpoint,
+# can pass it a vector of strings (names) or id numbers
 fullPokeInfo <- function(pokemon = NULL, id = NULL){
+  # Checks if both a pokemon and id argument were passed, throws this error if so
   if(!is.null(pokemon) & !is.null(id)){
     stop("Only can provide a vector of pokemon names or ids, not both")
   }
   # If a pokemon argument was provided
   if(!is.null(pokemon)){
-    # Check if the pokemon argument is a string
+    # Check if the pokemon argument is a character type
     if(!is.character(pokemon)){
-      # If not a string, show this error message
-      stop("Pokemon name must be provided as a string")
+      # If not a character type, show this error message
+      stop("Pokemon name must be provided as a string/character vector")
     }
+    # Initiate empty lists for some potential looping
     basepoke <- list()
     speciespoke <- list()
     fullpoke <- list()
+    # If we received a vector of pokemon names, we can loop through them
     for(i in pokemon){
+      # Grab the data from the pokemon endpoint
       basepoke[[i]] <- getPokemon(pokemon = i)
+      # Grab the data from the pokemon-species endpoint
       speciespoke[[i]] <- getPokeInfo(pokemon = i)
+      # Combine the two into one list
       fullpoke[[i]] <- c(basepoke[[i]], speciespoke[[i]])
     }
+    # Return the list with the combined data for each pokemon
     return(fullpoke)
   }
   # If an id argument was provided
@@ -134,57 +145,76 @@ fullPokeInfo <- function(pokemon = NULL, id = NULL){
       # If it wasn't numeric, show this error message
       stop("ID number must be a numeric value or vector")
     }
+    # Initialize empty lists for some potential looping
     idpokemon <- list()
     idspecies <- list()
     idfull <- list()
+    # If multiple id numbers were given to id argument, we can loop through them
     for(i in id){
+      # Grab the data from the pokemon endpoint
       idpokemon[[i]] <- getPokemon(id = i)
+      # Grab the data from the pokemon-species endpoint
       idspecies[[i]] <- getPokeInfo(id = i)
+      # Combine the two into one list
       idfull[[i]] <- c(idpokemon[[i]], idspecies[[i]])
     }
+    # Return the list with the combined data for each pokemon
     return(idfull)
   }
 }
 ```
 
 ``` r
+# This is the final pokemon function, where we can get pokemon info from both endpoints in a nice combined list
+# Also, we can specify what variables we want for each pokemon with the vars argument, which by default will return all variables
 pokeList <- function(pokemon = NULL, id = NULL, vars = all()){
+  # Initialize an empty list
   pokelist = list()
+  # Check if both pokemon and id arguments were passed, if so, throw this error message
   if(!is.null(pokemon) & !is.null(id)){
     stop("Only can provide a vector of pokemon names or ids, not both")
   }
+  # If a pokemon argument was passed
   if(!is.null(pokemon)){
+    # Check that it was a character type
     if(!is.character(pokemon)){
-      stop("Pokemon name must be a string")
+      stop("Pokemon name must be a string/character vector")
     }
+    # Grab the full pokemon info for each value passed, and put it in our pokelist
     for(i in pokemon){
       pokelist[i] <- fullPokeInfo(pokemon = i)
     }
   }
+  # If an id argument was passed
   if(!is.null(id)){
+    # Check that it was a numeric type
     if(!is.numeric(id)){
-      stop("ID number must be a numeric value")
+      stop("ID number must be a numeric value/vector")
     }
+    # Grab the full pokemon info for each value passed, and put it in our pokelist
     for(i in id){
     pokelist[i] <- fullPokeInfo(id = i)
     }
   }
+  # Now we can apply a subset of variables for element on our list based on the optional vars argument
   pokelist2 <- lapply(pokelist, function(x)x[vars])
+  # Return the list
   return(pokelist2)
 }
 ```
 
 ``` r
-# Define getBerry function, can be done with string or id number
+# Define getBerry function, can be done with a vector of strings (names) or id numbers
 getBerry <- function(berry = NULL, id = NULL){
+  # Check if both berry and id arguments passed, if so, need to throw this error message
   if(!is.null(berry) & !is.null(id)){
     stop("Only can provide a vector of berry names or ids, not both")
   }
   # If a berry argument was provided
   if(!is.null(berry)){
-    # Check if the berry argument is a string
+    # Check if the berry argument is a character type
     if(!is.character(berry)){
-      # If not a string, show this error message
+      # If not a character type, show this error message
       stop("Berry name must be provided as a string")
     }
     # Part of URL that doesn't change
@@ -199,7 +229,7 @@ getBerry <- function(berry = NULL, id = NULL){
   # If an id argument was provided
   if(!is.null(id)){
     # Check if the id argument was numeric
-    if(!is.null(berry)){
+    if(!is.numeric(id)){
       # If it wasn't numeric, show this error message
       stop("ID number must be a numeric value")
     }
@@ -218,6 +248,53 @@ getBerry <- function(berry = NULL, id = NULL){
 ```
 
 ``` r
+# Now we can customize a function that will allow us to get the info for a vector of berry names or id numbers,
+# Also we have an optional vars argument to pass a vector of variable names to keep, with all variables being the default
+berryInfo <- function(berry = NULL, id = NULL, vars = all()){
+  # Check if both berry and id arguments were passed, if so, need to throw this error message
+  if(!is.null(berry) & !is.null(id)){
+    stop("Only can provide a vector of berry names or ids, not both")
+  }
+  # If a berry argument was provided
+  if(!is.null(berry)){
+    # Check if the berry argument is a character type
+    if(!is.character(berry)){
+      # If not a character type, show this error message
+      stop("Berry name must be provided as a string")
+    }
+    # Initialize an empty list
+    berryinfo <- list()
+    # Add the berry info for each requested berry to our berryinfo list
+    for(i in berry){
+      berryinfo[[i]] <- getBerry(berry = i)
+    }
+    # Subset each iteration of our berryinfo list to contain the vars specified
+    berrylist <- lapply(berryinfo, function(x)x[vars])
+    # Return the list
+    return(berrylist)
+  }
+  # If an id argument was provided
+  if(!is.null(id)){
+    # Check if the id argument was numeric
+    if(!is.numeric(id)){
+      # If it wasn't numeric, show this error message
+      stop("ID number must be a numeric value or vector")
+    }
+    # Initialize an empty list
+    idberry <- list()
+    # Add the berry info for each requested berry to our idberry list
+    for(i in id){
+      idberry[[i]] <- getBerry(id = i)
+    }
+    # Subset each iteration of our idberry list to contain the vars specified
+    idlist <- lapply(idberry, function(x)x[vars])
+    # Return the list
+    return(idlist)
+  }
+}
+```
+
+``` r
 mons <- pokeList(pokemon = c("mewtwo", "garchomp", "froslass"), vars = c("name", "height"))
 ```
 
@@ -226,7 +303,7 @@ squirtle <- pokeList(pokemon = "squirtle")
 ```
 
 ``` r
-cheri <- getBerry(berry = "cheri")
+cheri <- berryInfo(berry = "cheri", vars = c("size", "smoothness"))
 ```
 
 <https://bulbapedia.bulbagarden.net/wiki/Berry>
