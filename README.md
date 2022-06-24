@@ -4,6 +4,12 @@ Josh Baber
 6/23/2022
 
 ``` r
+# Packages
+library(jsonlite)
+library(tidyverse)
+```
+
+``` r
 # render function, doesn't eval just here to copy/paste into console
 rmarkdown::render('README.Rmd', 
                   output_format = "github_document",
@@ -54,10 +60,50 @@ getPokemon <- function(pokemon = FALSE, id = FALSE){
 ```
 
 ``` r
+# Define getBerry function, can be done with string or id number
+getBerry <- function(berry = FALSE, id = FALSE){
+  # If a berry argument was provided
+  if(berry != FALSE){
+    # Check if the berry argument is a string
+    if(is.character(berry) == FALSE){
+      # If not a string, show this error message
+      stop("Berry name must be provided as a string")
+    }
+    # Part of URL that doesn't change
+    baseURL <- "https://pokeapi.co/api/v2/berry/"
+    # Part of URL that is based on argument
+    name <- berry
+    # Paste the two together into one string
+    fullURL <- paste0(baseURL, name)
+    # Read in the JSON file from the API with the full URL string
+    berryinfo <- fromJSON(fullURL)
+  }
+  # If an id argument was provided
+  if(id != FALSE){
+    # Check if the id argument was numeric
+    if(is.numeric(id) == FALSE){
+      # If it wasn't numeric, show this error message
+      stop("ID number must be a numeric value")
+    }
+    # Part of URL that doesn't change
+    baseURL <- "https://pokeapi.co/api/v2/berry/"
+    # Part of URL that is based on argument
+    berrynum <- id
+    # Paste the two together into one string
+    fullURL <- paste0(baseURL, berrynum)
+    # Read in the JSON file from the API with the full URL string
+    berryinfo <- fromJSON(fullURL)
+  }
+  # Return the info on the pokemon
+  return(berryinfo)
+}
+```
+
+``` r
 # Initalize a list that
 poke <- list()
-# Query the API for information on each of the original 150 pokemon, and store the information in our poke list
-for(i in 1:150){
+# Query the API for information on each of the original 151 pokemon, and store the information in our poke list
+for(i in 1:151){
   poke[[i]] <- getPokemon(id = i)
 }
 ```
@@ -65,14 +111,14 @@ for(i in 1:150){
 ``` r
 # Create a names vector
 names <- vector()
-# For each of the 150 pokemon, grab the name variable from that entry and put it in our names vector
-for(i in 1:150){
+# For each of the 151 pokemon, grab the name variable from that entry and put it in our names vector
+for(i in 1:151){
   names[i] <- poke[[i]]$name
 }
 # Create a height vector
 height <- vector()
 # For each of the 150 pokemon, grab the height variable from that entry and put it in our height vector
-for(i in 1:150){
+for(i in 1:151){
   height[i] <- poke[[i]]$height
 }
 # Create a data frame that has the heights for each of the first 150 pokemon and print it.
@@ -231,3 +277,81 @@ heights
     ## 148  dragonair     40
     ## 149  dragonite     22
     ## 150     mewtwo     20
+    ## 151        mew      4
+
+``` r
+cheri <- getBerry(berry = "cheri")
+```
+
+``` r
+cheri$natural_gift_type$name
+```
+
+    ## [1] "fire"
+
+<https://bulbapedia.bulbagarden.net/wiki/Berry>
+
+``` r
+# Initalize a list that
+allberries <- list()
+# Query the API for information on each of the original 151 pokemon, and store the information in our poke list
+for(i in 1:64){
+  allberries[[i]] <- getBerry(id = i)
+}
+```
+
+``` r
+# Define getPokeInfo function, can be done with string or id number
+getPokeInfo <- function(pokemon = FALSE, id = FALSE){
+  # If a pokemon argument was provided
+  if(pokemon != FALSE){
+    # Check if the pokemon argument is a string
+    if(is.character(pokemon) == FALSE){
+      # If not a string, show this error message
+      stop("Pokemon name must be provided as a string")
+    }
+    # Part of URL that doesn't change
+    baseURL <- "https://pokeapi.co/api/v2/pokemon-species/"
+    # Part of URL that is based on argument
+    name <- pokemon
+    # Paste the two together into one string
+    fullURL <- paste0(baseURL, pokemon)
+    # Read in the JSON file from the API with the full URL string
+    pokemoninfo <- fromJSON(fullURL)
+  }
+  # If an id argument was provided
+  if(id != FALSE){
+    # Check if the id argument was numeric
+    if(is.numeric(id) == FALSE){
+      # If it wasn't numeric, show this error message
+      stop("ID number must be a numeric value")
+    }
+    # Part of URL that doesn't change
+    baseURL <- "https://pokeapi.co/api/v2/pokemon-species/"
+    # Part of URL that is based on argument
+    pokedexnum <- id
+    # Paste the two together into one string
+    fullURL <- paste0(baseURL, pokedexnum)
+    # Read in the JSON file from the API with the full URL string
+    pokemoninfo <- fromJSON(fullURL)
+  }
+  # Return the info on the pokemon
+  return(pokemoninfo)
+}
+```
+
+``` r
+# Initalize a list that
+morePokeInfo <- list()
+# Query the API for information on each of the original 151 pokemon, and store the information in our poke list
+for(i in 1:151){
+  morePokeInfo[[i]] <- getPokeInfo(id = i)[c("capture_rate", "is_baby", "is_legendary", "is_mythical")]
+}
+```
+
+``` r
+fullPoke <- list()
+for(i in 1:151){
+  fullPoke[[i]] <- c(poke[[i]], morePokeInfo[[i]])
+}
+```
