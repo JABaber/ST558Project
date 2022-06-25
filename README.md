@@ -21,6 +21,7 @@ rmarkdown::render('README.Rmd',
 # Packages
 library(jsonlite)
 library(tidyverse)
+library(forcats)
 ```
 
 ## Pokemon Query Functions
@@ -1039,7 +1040,7 @@ ggplot(myPokeData, aes(x = attack, y = special_attack, color = type1)) + geom_po
   scale_color_discrete("Type 1")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-176-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
 
 ``` r
 # I needed to call in this fct_rev function to put the legendary pokemon on top, since they were on the bottom at first and I didn't like that.
@@ -1050,7 +1051,7 @@ ggplot(myPokeData, aes(x = generation)) + geom_bar(aes(fill = forcats::fct_rev(a
   scale_fill_manual(breaks = c(FALSE, TRUE), values = c("navy", "maroon"), name = " ", labels = c("Is Legendary", "Is Not Legendary"))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-177-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-40-1.png)<!-- -->
 
 ``` r
 # Subset the data into just gens 1 and 2
@@ -1062,7 +1063,7 @@ ggplot(gens1and2, aes(x = speed)) + geom_histogram(bins = 25, aes(y = ..density.
   scale_fill_manual(name = "Generation", breaks = c("1", "2"), values = c("red", "orange"))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-178-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-41-1.png)<!-- -->
 
 ``` r
 # Create a boxplot for size for each value of natural gift power, since it's technically continuous, the colors will be a gradient.
@@ -1072,7 +1073,7 @@ ggplot(myBerryData, aes(x = as.factor(as.character(natural_gift_power)), y = siz
   scale_fill_continuous(name = "Natural Gift Power")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-179-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-42-1.png)<!-- -->
 
 ``` r
 # Created a scatterplot of growth time vs. size, colored by natural gift type. Customized labels and title to make it look nice, also changed the size of legends and points, as well as opacity of points.
@@ -1081,4 +1082,4 @@ ggplot(myBerryData, aes(x = growth_time, y = size, color = natural_gift_type)) +
   scale_color_discrete("Natural Gift Type")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-180-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-43-1.png)<!-- -->
