@@ -19,7 +19,7 @@ rmarkdown::render('README.Rmd',
                   )
 ```
 
-id must be a continuous range!!
+id must be a continuous range from 1 to a number!!
 
 ``` r
 # Define getPokemon function, can be done with vector of strings (names) or ID numbers,
@@ -157,6 +157,8 @@ fullPokeInfo <- function(pokemon = NULL, id = NULL, vars = all()){
     idspecies <- list()
     idfull <- list()
     # If multiple id numbers were given to id argument, we can loop through them
+    # Pretty sure this is where the id variable gets weird.  Couldn't figure out
+    # How to make it more flexible.
     for(i in id){
       # Grab the data from the pokemon endpoint
       idpokemon[[i]] <- getPokemon(id = i)
@@ -351,80 +353,87 @@ getTypes <- function(list){
 ```
 
 ``` r
+# Function that will parse a pokemon query into a tibble 
 pokeTibble <- function(pokemon = NULL, id = NULL, vars){
+  # Get a list from fullPokeInfo()
   pokelist <- fullPokeInfo(pokemon = pokemon, id = id, vars = vars)
+  # These variables are data frames in the list, need to have use helper functions to get them usable
   dfs <- c("types", "abilities", "stats")
+  # These variables are not data frames and can be easily put into a tibble
   nondfs <- c("name", "id", "height", "weight", "capture_rate", "base_experience", "base_happiness", "is_baby", "is_legendary", "is_mythical", "is_default", "order", "hatch_counter")
+  # These variables are either pretty useless, too large, contain urls, or are hard to work with and give me errors
   badvars <- c("forms", "game_indices", "held_items", "location_area_encounters", "moves", "past_types", "species", "sprites", "color", "egg_groups", "evolution_chain", "flavor_text_entries", "form_descriptions", "has_gender_differences", "gender_rate", "evolves_from_species", "forms_switchable", "genera", "generation", "growth_rate", "habitat", "names", "pal_park_encounters", "pokedex_numbers", "shape", "varities")
+  # These variables are numeric, need to be explicitly coerced into numeric variables later
   numericvars <- c("height", "weight", "capture_rate", "base_experience", "base_happiness", "order", "hatch_counter")
+  # These variables are logical, need to be explicitly coerced into logical variables later
   logicalvars <- c("is_baby", "is_legendary", "is_mythical", "is_default")
+  # First I want to throw an error if a "badvar" was passed in the vars argument, since they can't go
+  # in a tibble
   for(i in badvars){
     if(i %in% vars){
       stop(paste0(i, " is not a valid variable, please remove.  Valid variables include name, id, height, weight, capture_rate, base_experience, base_happiness, is_baby, is_legendary, is_mythical, is_default, order, evolves_from_species, forms_switchable, gender_rate, has_gender_differences, hatch_counter, types, abilities, and stats"))
     }
   }
+  # Next, initialize an empty vector for variables
   nondfvars = c()
+  # For every nondf variable
   for(i in nondfs){
+    # Check if it was passed in the vars argument
     if(i %in% vars){
+      # If so, append it to the nondfvars vector
       nondfvars[i] <- i
     }
   }
+  # Now that we have a vector nondf vars that were passed, we can subset each pokemon's list and call it values
   values <- lapply(pokelist, function(x)x[nondfvars])
   # Convert to a tibble
   valuestibble <- convertToTibble(values)
   # Rename the columns
   colnames(valuestibble) <- nondfvars
+  # Next we need to consider our variables that are stuck in data frames, initialize an empty vector named dfvars
   dfvars = c()
+  # For every df variable
   for(i in dfs){
+    # Check if it was passed in the vars argument
     if(i %in% vars){
+      # If so, append it to the dfvars vector
       dfvars[i] <- i
     }
   }
+  # Check if "types" was a variable passed, if so, create a types tibble using getTypes() and append it to the valuestibble
   if("types" %in% dfvars){
     types <- getTypes(pokelist)
     valuestibble <- tibble(valuestibble, types)
   }
+  # Check if "abilities" was a variable passed, if so, create an abilities tibble using getAbilities() and append it to the valuestibble
   if("abilities" %in% dfvars){
     abilities <- getAbilities(pokelist)
     valuestibble <- tibble(valuestibble, abilities)
   }
+  # Check if "stats" was a variable passed, if so, create a stats tibble using getStats() and append it to the valuestibble
   if("stats" %in% dfvars){
     stats <- getStats(pokelist)
     valuestibble <- tibble(valuestibble, stats)
   }
+  # Now we need to convert numeric variables into integer values if possible
   for(i in colnames(valuestibble)){
+    # If a column name is in our numericvars vector
     if(i %in% numericvars){
+      # Replace the values in that column with the integer value of it
       valuestibble[[i]] <- as.integer(valuestibble[[i]])
     }
+    # If a column name is in our logicalvars vector
     if(i %in% logicalvars){
+      # Replace the values in that column with the logical value of it
       valuestibble[[i]] <- as.logical(valuestibble[[i]])
     }
   }
+  # Return our tibble
   return(valuestibble)
 }
 ```
 
 Next, I want to do get a similar table for Berries.
-
-``` r
-# Grab every variable except item because it is redundant
-berryVars = c("name", "id", "firmness", "flavors", "growth_time", "max_harvest", "natural_gift_power", "natural_gift_type", "size", "smoothness", "soil_dryness")
-# Create a vector of berry numbers, there are 64 total
-berries = c(1:64)
-# List of info on every berry named allBerries
-allBerries <- berryInfo(id = berries, vars = berryVars)
-```
-
-``` r
-# These are the variables whose values I can quickly convert to tibble
-berrynondfs <- c("name", "id", "growth_time", "max_harvest", "natural_gift_power", "size", "smoothness", "soil_dryness")
-# Go ahead and subset to these values for each berry
-berryvalues <- lapply(allBerries, function(x)x[berrynondfs])
-# Convert to a tibble
-berryvaluestibble <- convertToTibble(berryvalues)
-# Rename the columns
-colnames(berryvaluestibble) <- berrynondfs
-```
 
 ``` r
 # Firmness is stored in a list, need a function to parse this data
@@ -488,13 +497,201 @@ getFlavors <- function(list){
 ```
 
 ``` r
-# Return a tibble with all the data I want
-myBerries <- tibble(berryvaluestibble, getFirmness(allBerries), getNatGiftType(allBerries), getFlavors(allBerries))
-myBerries <- myBerries %>% mutate(growth_time = as.integer(growth_time), max_harvest = as.integer(max_harvest), natural_gift_power = as.integer(natural_gift_power), size = as.integer(size), smoothness = as.integer(smoothness), soil_dryness = as.integer(soil_dryness))
-myBerries
+# item name is stored in a list, need a function to parse this data
+getItem <- function(list){
+  # Subset to just the item list for each berry in list
+  items <- lapply(list, function(x)x["item"]$item)
+  # Initialize item_name vector
+  item_name <- vector()
+  # Loop through each berry's items list
+  for(i in 1:length(items)){
+    # Append the "name" value of items onto the vector for each berry
+    item_name[i] <- items[[i]]$name
+  }
+  # Return tibble of item names
+  return(tibble(item_name))
+}
 ```
 
-    ## # A tibble: 64 × 15
+``` r
+# Similar function but for berries, can take in berry or id and a vector of variables
+berryTibble <- function(berry = NULL, id = NULL, vars){
+  # Get a list of berry info from the berryInfo() function
+  berrylist <- berryInfo(berry = berry, id = id, vars = vars)
+  # These are the variables that require extra parsing because they are in list/data frames
+  dfs <- c("flavors", "natural_gift_type", "firmness", "item")
+  # These variables do no require extra parsing
+  nondfs <- c("name", "id", "growth_time", "max_harvest", "natural_gift_power", "size", "smoothness", "soil_dryness")
+  # These variables are supposed to be numeric, will have to convert them to numeric later
+  numericvars <- c("growth_time", "max_harvest", "natural_gift_power", "size", "smoothness", "soil_dryness")
+  # Initialize an empty vector to hold nondf variables that were passed through vars argument
+  nondfvars = c()
+  # For every variable in nondfs
+  for(i in nondfs){
+    # Check if it was passed through vars argument
+    if(i %in% vars){
+      # If so, append that variable to the nondfvars vector
+      nondfvars[i] <- i
+    }
+  }
+  # Subset each berry list to contain the nondf vars variables
+  values <- lapply(berrylist, function(x)x[nondfvars])
+  # Convert to a tibble
+  valuestibble <- convertToTibble(values)
+  # Rename the columns
+  colnames(valuestibble) <- nondfvars
+  # Initialize an empty bector to hold df variables that were passed through vars argument
+  dfvars = c()
+  # For every variable in dfs
+  for(i in dfs){
+    # Check if it was passed through vars argument
+    if(i %in% vars){
+      # If so, append that variable to the dfvars vector
+      dfvars[i] <- i
+    }
+  }
+  # If "flavors" was in the vars argument, get the flavors tibble using getFlavors, 
+  # then combine that tibble with the valuestibble
+  if("flavors" %in% dfvars){
+    flavors <- getFlavors(berrylist)
+    valuestibble <- tibble(valuestibble, flavors)
+  }
+  # If "natural_gift_type" was in the vars argument, get the tibble using getNatGiftType, 
+  # then combine that tibble with the valuestibble
+  if("natural_gift_type" %in% dfvars){
+    natural_gift_type <- getNatGiftType(berrylist)
+    valuestibble <- tibble(valuestibble, natural_gift_type)
+  }
+  # If "firmness" was in the vars argument, get the flavors tibble using getFirmness, 
+  # then combine that tibble with the valuestibble
+  if("firmness" %in% dfvars){
+    firmness <- getFirmness(berrylist)
+    valuestibble <- tibble(valuestibble, firmness)
+  }
+  # If "item" was in the vars argument, get the item tibble using getItem, 
+  # then combine that tibble with the valuestibble
+  if("item" %in% dfvars){
+    item <- getItem(berrylist)
+    valuestibble <- tibble(valuestibble, item)
+  }
+  # Convert the numeric variables to numeric, check each column name in the tibble
+  for(i in colnames(valuestibble)){
+    # If the column name is in numericvars
+    if(i %in% numericvars){
+      # Convert that column to integer values
+      valuestibble[[i]] <- as.integer(valuestibble[[i]])
+    }
+  }
+  # Return the tibble
+  return(valuestibble)
+}
+```
+
+<https://bulbapedia.bulbagarden.net/wiki/Berry>
+
+``` r
+# Lastly, we can wrap everything together to produce nice tibbles for either pokemon or berry queries
+queryAPI <- function(pokemon = NULL, pokeid = NULL, pokevars = NULL, berry = NULL, berryid = NULL, berryvars = NULL){
+  # If only pokemon and pokevars arguments were passed
+  if(!is.null(pokemon) & !is.null(pokevars) & is.null(c(pokeid, berry, berryid, berryvars))){
+    # Create a pokeTibble from the pokemon and pokevars arguments and return it
+    poketibble <- pokeTibble(pokemon = pokemon, vars = pokevars)
+    return(poketibble)
+  }
+  # Else if only pokeid and pokevars arguments were passed
+  else if(!is.null(pokeid) & !is.null(pokevars) & is.null(c(pokemon, berry, berryid, berryvars))){
+    # Create a pokeTibble from the pokeid and pokevars arguments and return it
+    poketibble <- pokeTibble(id = pokeid, vars = pokevars)
+    return(poketibble)
+  }
+  # Else if only berry and berryvars arguments were passed
+  else if(!is.null(berry) & !is.null(berryvars) & is.null(c(pokemon, pokeid, pokevars, berryid))){
+    # Create a berryTibble from the berry and berryvars arguments and return it
+    berrytibble <- berryTibble(berry = berry, vars = berryvars)
+    return(berrytibble)
+  }
+  # Else if only berryid and berryvars arguments were passed
+  else if(!is.null(berryid) & !is.null(berryvars) & is.null(c(pokemon, pokeid, pokevars, berry))){
+    # Create a berryTibble the berryid and berryvars arguments and return it
+    berrytibble <- berryTibble(id = berryid, vars = berryvars)
+    return(berrytibble)
+  }
+  # If some other combination of arguments was passed, it is invalid, return this error message
+  else{
+    stop("Must provided either names and variables or ids and variables for pokemon or for berries, not both!")
+  }
+}
+```
+
+``` r
+# These are the variables I am going to be working with in my EDA for pokemon and berries
+myPokeVars <- c("name", "id", "types", "abilities", "height", "weight", "is_baby", "is_legendary", "is_mythical", "capture_rate", "stats")
+myBerryVars <- c("name", "id", "growth_time", "max_harvest", "natural_gift_power", "size", "smoothness", "soil_dryness", "flavors", "natural_gift_type", "firmness", "item")
+```
+
+``` r
+# Test that it works for pokemon and pokevars combination
+queryAPI(pokemon = c("pikachu", "mewtwo", "greninja", "igglybuff", "rayquaza"), pokevars = myPokeVars)
+```
+
+    ## # A tibble: 5 × 19
+    ##   name     id    height weight capture_rate is_baby is_legendary
+    ##   <chr>    <chr>  <int>  <int>        <int> <lgl>   <lgl>       
+    ## 1 pikachu  25         4     60          190 FALSE   FALSE       
+    ## 2 mewtwo   150       20   1220            3 FALSE   TRUE        
+    ## 3 greninja 658       15    400           45 FALSE   FALSE       
+    ## 4 igglybu… 174        3     10          170 TRUE    FALSE       
+    ## 5 rayquaza 384       70   2065           45 FALSE   TRUE        
+    ## # … with 12 more variables: is_mythical <lgl>, type1 <chr>,
+    ## #   type2 <chr>, ability1 <chr>, ability2 <chr>,
+    ## #   ability3 <chr>, hp <int>, attack <int>, defense <int>,
+    ## #   special_attack <int>, special_defense <int>, speed <int>
+
+``` r
+# Test that it works for pokeid and pokevars combination
+queryAPI(pokeid = c(1:10), pokevars = myPokeVars)
+```
+
+    ## # A tibble: 10 × 19
+    ##    name    id    height weight capture_rate is_baby is_legendary
+    ##    <chr>   <chr>  <int>  <int>        <int> <lgl>   <lgl>       
+    ##  1 bulbas… 1          7     69           45 FALSE   FALSE       
+    ##  2 ivysaur 2         10    130           45 FALSE   FALSE       
+    ##  3 venusa… 3         20   1000           45 FALSE   FALSE       
+    ##  4 charma… 4          6     85           45 FALSE   FALSE       
+    ##  5 charme… 5         11    190           45 FALSE   FALSE       
+    ##  6 chariz… 6         17    905           45 FALSE   FALSE       
+    ##  7 squirt… 7          5     90           45 FALSE   FALSE       
+    ##  8 wartor… 8         10    225           45 FALSE   FALSE       
+    ##  9 blasto… 9         16    855           45 FALSE   FALSE       
+    ## 10 caterp… 10         3     29          255 FALSE   FALSE       
+    ## # … with 12 more variables: is_mythical <lgl>, type1 <chr>,
+    ## #   type2 <chr>, ability1 <chr>, ability2 <chr>,
+    ## #   ability3 <chr>, hp <int>, attack <int>, defense <int>,
+    ## #   special_attack <int>, special_defense <int>, speed <int>
+
+``` r
+# Test that it works for berry and berryvars combination
+queryAPI(berry = c("cheri", "rawst", "chesto"), berryvars = myBerryVars)
+```
+
+    ## # A tibble: 3 × 16
+    ##   name   id    growth_time max_harvest natural_gift_power  size
+    ##   <chr>  <chr>       <int>       <int>              <int> <int>
+    ## 1 cheri  1               3           5                 60    20
+    ## 2 rawst  4               3           5                 60    32
+    ## 3 chesto 2               3           5                 60    80
+    ## # … with 10 more variables: smoothness <int>,
+    ## #   soil_dryness <int>, spicy <int>, dry <int>, sweet <int>,
+    ## #   bitter <int>, sour <int>, natural_gift_type <chr>,
+    ## #   firmness <chr>, item_name <chr>
+
+``` r
+# Test that it works for berryid and berryvars combination
+queryAPI(berryid = 1:64, berryvars = myBerryVars)
+```
+
+    ## # A tibble: 64 × 16
     ##    name   id    growth_time max_harvest natural_gift_power  size
     ##    <chr>  <chr>       <int>       <int>              <int> <int>
     ##  1 cheri  1               3           5                 60    20
@@ -507,27 +704,7 @@ myBerries
     ##  8 persim 8               4           5                 60    47
     ##  9 lum    9              12           5                 60    34
     ## 10 sitrus 10              8           5                 60    95
-    ## # … with 54 more rows, and 9 more variables: smoothness <int>,
-    ## #   soil_dryness <int>, firmness <chr>,
-    ## #   natural_gift_type <chr>, spicy <int>, dry <int>,
-    ## #   sweet <int>, bitter <int>, sour <int>
-
-<https://bulbapedia.bulbagarden.net/wiki/Berry>
-
-``` r
-megaTibble <- c("name", "id", "height", "weight", "capture_rate", "base_experience", "base_happiness", "is_baby", "is_legendary", "is_mythical", "is_default", "order", "hatch_counter", "types", "abilities", "stats")
-pokeTibble(pokemon = c("squirtle", "ivysaur", "charizard"), vars = megaTibble)
-```
-
-    ## # A tibble: 3 × 24
-    ##   name      id    height weight capture_rate base_experience
-    ##   <chr>     <chr>  <int>  <int>        <int>           <int>
-    ## 1 squirtle  7          5     90           45              63
-    ## 2 ivysaur   2         10    130           45             142
-    ## 3 charizard 6         17    905           45             267
-    ## # … with 18 more variables: base_happiness <int>,
-    ## #   is_baby <lgl>, is_legendary <lgl>, is_mythical <lgl>,
-    ## #   is_default <lgl>, order <int>, hatch_counter <int>,
-    ## #   type1 <chr>, type2 <chr>, ability1 <chr>, ability2 <chr>,
-    ## #   ability3 <chr>, hp <int>, attack <int>, defense <int>,
-    ## #   special_attack <int>, special_defense <int>, speed <int>
+    ## # … with 54 more rows, and 10 more variables: smoothness <int>,
+    ## #   soil_dryness <int>, spicy <int>, dry <int>, sweet <int>,
+    ## #   bitter <int>, sour <int>, natural_gift_type <chr>,
+    ## #   firmness <chr>, item_name <chr>
