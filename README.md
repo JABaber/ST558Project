@@ -9,18 +9,6 @@ library(jsonlite)
 library(tidyverse)
 ```
 
-    ## ── Attaching packages ─────────────
-
-    ## ✔ ggplot2 3.3.6     ✔ purrr   0.3.4
-    ## ✔ tibble  3.1.7     ✔ dplyr   1.0.9
-    ## ✔ tidyr   1.2.0     ✔ stringr 1.4.0
-    ## ✔ readr   2.1.2     ✔ forcats 0.5.1
-
-    ## ── Conflicts ──────────────────────
-    ## ✖ dplyr::filter()  masks stats::filter()
-    ## ✖ purrr::flatten() masks jsonlite::flatten()
-    ## ✖ dplyr::lag()     masks stats::lag()
-
 ``` r
 # render function, doesn't eval just here to copy/paste into console
 rmarkdown::render('README.Rmd', 
@@ -293,26 +281,6 @@ convertToTibble <- function(list){
 ```
 
 ``` r
-# Time to test everything out, first create a vector of variables I want
-pokevars = c("name", "id", "height", "weight", "abilities", "stats", "types", "capture_rate", "is_baby", "is_legendary", "is_mythical")
-# Create a vector of pokedex numbers
-mons = c(1:386)
-# The first 386 pokemon are from Gens 1 to 3, get their info
-Gen1thruGen3 <- fullPokeInfo(id = mons, vars = pokevars)
-```
-
-``` r
-# These are the variables whose values I can quickly convert to tibble
-nondfs <- c("name", "id", "height", "weight", "capture_rate", "is_baby", "is_legendary", "is_mythical")
-# Go ahead and subset to these values for each pokemon
-values <- lapply(Gen1thruGen3, function(x)x[nondfs])
-# Convert to a tibble
-valuestibble <- convertToTibble(values)
-# Rename the columns
-colnames(valuestibble) <- nondfs
-```
-
-``` r
 # Abilities are stored in a data frame, so I need a function to help convert to a tibble
 getAbilities <- function(list){
   # Subset to just the abilities for each pokemon in list
@@ -383,32 +351,58 @@ getTypes <- function(list){
 ```
 
 ``` r
-# I can combine everything into one big tibble that has all the info I want
-myPokemon <- tibble(valuestibble, getTypes(Gen1thruGen3), getAbilities(Gen1thruGen3), getStats(Gen1thruGen3))
-myPokemon <- myPokemon %>% mutate(height = as.integer(height), weight = as.integer(weight), capture_rate = as.integer(capture_rate), is_baby = as.logical(is_baby), is_legendary = as.logical(is_legendary), is_mythical = is.logical(is_mythical))
-myPokemon
+pokeTibble <- function(pokemon = NULL, id = NULL, vars){
+  pokelist <- fullPokeInfo(pokemon = pokemon, id = id, vars = vars)
+  dfs <- c("types", "abilities", "stats")
+  nondfs <- c("name", "id", "height", "weight", "capture_rate", "base_experience", "base_happiness", "is_baby", "is_legendary", "is_mythical", "is_default", "order", "hatch_counter")
+  badvars <- c("forms", "game_indices", "held_items", "location_area_encounters", "moves", "past_types", "species", "sprites", "color", "egg_groups", "evolution_chain", "flavor_text_entries", "form_descriptions", "has_gender_differences", "gender_rate", "evolves_from_species", "forms_switchable", "genera", "generation", "growth_rate", "habitat", "names", "pal_park_encounters", "pokedex_numbers", "shape", "varities")
+  numericvars <- c("height", "weight", "capture_rate", "base_experience", "base_happiness", "order", "hatch_counter")
+  logicalvars <- c("is_baby", "is_legendary", "is_mythical", "is_default")
+  for(i in badvars){
+    if(i %in% vars){
+      stop(paste0(i, " is not a valid variable, please remove.  Valid variables include name, id, height, weight, capture_rate, base_experience, base_happiness, is_baby, is_legendary, is_mythical, is_default, order, evolves_from_species, forms_switchable, gender_rate, has_gender_differences, hatch_counter, types, abilities, and stats"))
+    }
+  }
+  nondfvars = c()
+  for(i in nondfs){
+    if(i %in% vars){
+      nondfvars[i] <- i
+    }
+  }
+  values <- lapply(pokelist, function(x)x[nondfvars])
+  # Convert to a tibble
+  valuestibble <- convertToTibble(values)
+  # Rename the columns
+  colnames(valuestibble) <- nondfvars
+  dfvars = c()
+  for(i in dfs){
+    if(i %in% vars){
+      dfvars[i] <- i
+    }
+  }
+  if("types" %in% dfvars){
+    types <- getTypes(pokelist)
+    valuestibble <- tibble(valuestibble, types)
+  }
+  if("abilities" %in% dfvars){
+    abilities <- getAbilities(pokelist)
+    valuestibble <- tibble(valuestibble, abilities)
+  }
+  if("stats" %in% dfvars){
+    stats <- getStats(pokelist)
+    valuestibble <- tibble(valuestibble, stats)
+  }
+  for(i in colnames(valuestibble)){
+    if(i %in% numericvars){
+      valuestibble[[i]] <- as.integer(valuestibble[[i]])
+    }
+    if(i %in% logicalvars){
+      valuestibble[[i]] <- as.logical(valuestibble[[i]])
+    }
+  }
+  return(valuestibble)
+}
 ```
-
-    ## # A tibble: 386 × 19
-    ##    name       id    height weight
-    ##    <chr>      <chr>  <int>  <int>
-    ##  1 bulbasaur  1          7     69
-    ##  2 ivysaur    2         10    130
-    ##  3 venusaur   3         20   1000
-    ##  4 charmander 4          6     85
-    ##  5 charmeleon 5         11    190
-    ##  6 charizard  6         17    905
-    ##  7 squirtle   7          5     90
-    ##  8 wartortle  8         10    225
-    ##  9 blastoise  9         16    855
-    ## 10 caterpie   10         3     29
-    ## # … with 376 more rows, and 15
-    ## #   more variables:
-    ## #   capture_rate <int>,
-    ## #   is_baby <lgl>,
-    ## #   is_legendary <lgl>,
-    ## #   is_mythical <lgl>,
-    ## #   type1 <chr>, type2 <chr>, …
 
 Next, I want to do get a similar table for Berries.
 
@@ -501,24 +495,39 @@ myBerries
 ```
 
     ## # A tibble: 64 × 15
-    ##    name   id    growth_time
-    ##    <chr>  <chr>       <int>
-    ##  1 cheri  1               3
-    ##  2 chesto 2               3
-    ##  3 pecha  3               3
-    ##  4 rawst  4               3
-    ##  5 aspear 5               3
-    ##  6 leppa  6               4
-    ##  7 oran   7               4
-    ##  8 persim 8               4
-    ##  9 lum    9              12
-    ## 10 sitrus 10              8
-    ## # … with 54 more rows, and 12 more
-    ## #   variables: max_harvest <int>,
-    ## #   natural_gift_power <int>,
-    ## #   size <int>, smoothness <int>,
-    ## #   soil_dryness <int>,
-    ## #   firmness <chr>,
-    ## #   natural_gift_type <chr>, …
+    ##    name   id    growth_time max_harvest natural_gift_power  size
+    ##    <chr>  <chr>       <int>       <int>              <int> <int>
+    ##  1 cheri  1               3           5                 60    20
+    ##  2 chesto 2               3           5                 60    80
+    ##  3 pecha  3               3           5                 60    40
+    ##  4 rawst  4               3           5                 60    32
+    ##  5 aspear 5               3           5                 60    50
+    ##  6 leppa  6               4           5                 60    28
+    ##  7 oran   7               4           5                 60    35
+    ##  8 persim 8               4           5                 60    47
+    ##  9 lum    9              12           5                 60    34
+    ## 10 sitrus 10              8           5                 60    95
+    ## # … with 54 more rows, and 9 more variables: smoothness <int>,
+    ## #   soil_dryness <int>, firmness <chr>,
+    ## #   natural_gift_type <chr>, spicy <int>, dry <int>,
+    ## #   sweet <int>, bitter <int>, sour <int>
 
 <https://bulbapedia.bulbagarden.net/wiki/Berry>
+
+``` r
+megaTibble <- c("name", "id", "height", "weight", "capture_rate", "base_experience", "base_happiness", "is_baby", "is_legendary", "is_mythical", "is_default", "order", "hatch_counter", "types", "abilities", "stats")
+pokeTibble(pokemon = c("squirtle", "ivysaur", "charizard"), vars = megaTibble)
+```
+
+    ## # A tibble: 3 × 24
+    ##   name      id    height weight capture_rate base_experience
+    ##   <chr>     <chr>  <int>  <int>        <int>           <int>
+    ## 1 squirtle  7          5     90           45              63
+    ## 2 ivysaur   2         10    130           45             142
+    ## 3 charizard 6         17    905           45             267
+    ## # … with 18 more variables: base_happiness <int>,
+    ## #   is_baby <lgl>, is_legendary <lgl>, is_mythical <lgl>,
+    ## #   is_default <lgl>, order <int>, hatch_counter <int>,
+    ## #   type1 <chr>, type2 <chr>, ability1 <chr>, ability2 <chr>,
+    ## #   ability3 <chr>, hp <int>, attack <int>, defense <int>,
+    ## #   special_attack <int>, special_defense <int>, speed <int>
