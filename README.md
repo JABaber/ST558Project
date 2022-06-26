@@ -3,7 +3,71 @@ Pokemon API Vignette
 Josh Baber
 6/23/2022
 
+-   [Using PokeAPI](#using-pokeapi)
+    -   [Josh Baber](#josh-baber)
+    -   [Introduction](#introduction)
+    -   [Setup](#setup)
+    -   [Packages](#packages)
+    -   [Pokemon Query Functions](#pokemon-query-functions)
+        -   [`getPokemon()` Function](#getpokemon-function)
+        -   [`getPokeInfo()` Function](#getpokeinfo-function)
+        -   [`fullPokeInfo()` Function](#fullpokeinfo-function)
+    -   [Berry Query Functions](#berry-query-functions)
+        -   [`getBerry()` Function](#getberry-function)
+        -   [`berryInfo()` Function](#berryinfo-function)
+    -   [Helper Functions for Creating Tibbles from
+        Queries](#helper-functions-for-creating-tibbles-from-queries)
+        -   [`convertToTibble()` Function](#converttotibble-function)
+        -   [Pokemon Helper Functions](#pokemon-helper-functions)
+        -   [Berry Helper Functions](#berry-helper-functions)
+    -   [Create Pokemon Tibble with
+        `pokeTibble()`](#create-pokemon-tibble-with-poketibble)
+    -   [Create Berry Tibble with
+        `berryTibble()`](#create-berry-tibble-with-berrytibble)
+    -   [Combine Tibble Functions Into One-Size-Fits-All Query Function
+        with
+        `queryAPI()`](#combine-tibble-functions-into-one-size-fits-all-query-function-with-queryapi)
+    -   [Demonstrate `queryAPI()`](#demonstrate-queryapi)
+    -   [Exploratory Data Analysis
+        (EDA)](#exploratory-data-analysis-eda)
+        -   [Create My Data Sets](#create-my-data-sets)
+        -   [Create generation Variable](#create-generation-variable)
+        -   [Create Some Contingency
+            Tables](#create-some-contingency-tables)
+        -   [Do Some Numerical Summaries](#do-some-numerical-summaries)
+        -   [Plots](#plots)
+
+# Using PokeAPI
+
+## Josh Baber
+
+## Introduction
+
+This is a vignette created to interact with the Pokemon API found at
+<https://pokeapi.co/> which houses just about any and all data related
+to main series Pokemon games. This vignette will contain the functions I
+created to not only pull data from the API, but to parse some of it into
+workable data and format it into tibbles. The endpoints I pull from
+include <https://pokeapi.co/api/v2/pokemon/> ,
+<https://pokeapi.co/api/v2/berry/> , and
+<https://pokeapi.co/api/v2/pokemon-species/> . By the end, I will have a
+`queryAPI()` function that will allow users to query information about
+any Pokemon or berry, either by name or by id number. Lastly, I will use
+my `queryAPI()` function to produce data sets that I can perform some
+Exploratory Data Analysis on, including plots and tables.
+
 ## Setup
+
+This code chunk sets a global option to print out all code chunks.
+
+``` r
+# Ensures all code chunks show by default
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This code chunk contains my `render()` function, which I used to upload
+my .Rmd file to github as a .md file, which in turn becomes this web
+page.
 
 ``` r
 # render function, doesn't eval just here to copy/paste into console
@@ -17,8 +81,19 @@ rmarkdown::render('README.Rmd',
 
 ## Packages
 
+Below is a list of packages that were used in this vignette. \* `knitr`
+was used to set the global option to return all code. \* `rmarkdown` was
+used to render the file as a markdown file. \* `jsonlite` Needed to
+convert raw JSON data from the API into lists via the `fromJSON()`
+function \* `tidyverse` Provided easy data manipulation via functions
+from `dplyr` and `tidyr`, also used to create graphs via `ggplot2` \*
+`forcats` A package I used to implement one specific change I needed
+regarding one of the graphs. I used the `fct_rev()` function for this.
+
 ``` r
 # Packages
+library(knitr)
+library(rmarkdown)
 library(jsonlite)
 library(tidyverse)
 library(forcats)
@@ -26,7 +101,22 @@ library(forcats)
 
 ## Pokemon Query Functions
 
+### `getPokemon()` Function
+
 **Please Note That id must be a continuous range from 1 to a number!!**
+
+The first function is going to query data from the “pokemon” endpoint.
+It can take in a Pokemon name as a string, or it can take in an id
+number, which corresponds to a Pokemon’s “Pokedex” number. A list of
+Pokemon can be found here:
+<https://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_National_Pok%C3%A9dex_number>
+
+The pokeAPI’s information matches up with much of what Bulbapedia has,
+so it can be useful to consider Bulbapedia in addition to the pokeAPI
+docs.
+
+When the function is run, it returns a list containing many variables
+from the “pokemon” endpoint.
 
 ``` r
 # Define getPokemon function, can be done with vector of strings (names) or ID numbers,
@@ -73,6 +163,16 @@ getPokemon <- function(pokemon = NULL, id = NULL){
 }
 ```
 
+### `getPokeInfo()` Function
+
+There is another endpoint that contains information about Pokemon. This
+is the “pokemon-species” endpoint. It works similarly to the previous
+function, taking in either a Pokemon name via string or an id number.
+This returns a list that contains new information on a Pokemon, that is
+not returned in the `getPokemon()` function. Next, I am going to combine
+both of these lists into one “mega-list” of information on a supplied
+Pokemon, and make it iterable.
+
 ``` r
 # Define getPokeInfo function, can be done with strings (names) or id numbers,
 # comes from pokemon-species endpoint
@@ -117,6 +217,26 @@ getPokeInfo <- function(pokemon = NULL, id = NULL){
   return(pokemoninfo)
 }
 ```
+
+### `fullPokeInfo()` Function
+
+Since the `getPokemon()` and `getPokeInfo()` functions both take in the
+same arguments, and both return lists, we can combine them into one
+list. Additionally, there is a **vars** argument that can take in a
+vector of variables to subset this list on. For example, if we only
+wanted the name and height variables, we would say
+`vars = c("name", "height")`. I also made this iterable, so that we can
+pass a vector of Pokemon names (strings) or a vector of id numbers.
+Unfortunately, I ran into trouble with the id argument, so it can
+strictly only take in a continuous vector from 1 to some number. I tried
+to make this more flexible, but to no avail. The id argument is far more
+useful for grabbing a ton of Pokemon, since it isn’t really feasible to
+supply a long vector of names. This function will return a list that
+contains the specified variables for each of the provided Pokemon. The
+tibble functions later on remove some of the variables from this list,
+so if the user wanted to keep those variables, they could use this
+function, however, it won’t be formatted into a tibble and will remain a
+list.
 
 ``` r
 # Function that combines the data from the pokemon endpoint and the pokemon-species endpoint,
@@ -186,6 +306,19 @@ fullPokeInfo <- function(pokemon = NULL, id = NULL, vars = all()){
 
 **Please Note That id must be a continuous range from 1 to a number!!**
 
+### `getBerry()` Function
+
+Much like we did for reaching out to the Pokemon endpoints, we can reach
+out to the “berry” endpoint to return information about berries. In
+Pokemon games, berries have many unique properties. They all have
+different flavors, growth times, sizes, firmnesses, and more. More
+information about berries can be found here:  
+<https://bulbapedia.bulbagarden.net/wiki/Berry>
+
+Similar to the `getPokemon()` function, `getBerry()` queries a berry via
+name or id, then it returns a list of variables from the API that have
+to do with that particular berry.
+
 ``` r
 # Define getBerry function, can be done with a vector of strings (names) or id numbers
 getBerry <- function(berry = NULL, id = NULL){
@@ -229,6 +362,16 @@ getBerry <- function(berry = NULL, id = NULL){
   return(berryinfo)
 }
 ```
+
+### `berryInfo()` Function
+
+Since there is only one endpoint that contains info about berries, we
+are ready to take on multiple iterations of berries. We can provide a
+vector of berry names, or a continuous vector of id numbers that start
+at 1. Additionally, we have a **vars** argument that takes in a vector
+of variable names and subsets each iteration of berry that is passed to
+contain just the specified variables. This function will return a list
+that contains the specified variables for each berry that is specified.
 
 ``` r
 # Now we can customize a function that will allow us to get the info for a vector of berry names 
@@ -280,6 +423,32 @@ berryInfo <- function(berry = NULL, id = NULL, vars = all()){
 
 ## Helper Functions for Creating Tibbles from Queries
 
+Many of the items that are returned in these lists are data frames or
+lists themselves. Thus, they require further parsing as they have items
+or variables of their own. When I convert these lists into tibbles, I
+need to turn these smaller lists into tibbles first, so that I can
+concatenate them on. I am going to call these “problem variables”.
+
+I ran into many problem variables when parsing this data. The
+`fullPokeInfo()` function returns 45 variables in total. Of these, I
+would say 30 of them are problem variables. Out of those 30, they are
+mainly text strings like Pokedex entries, locations, sprites (which are
+images of the Pokemon used in game), many other flavor texts (often in
+other languages), and more. I figured that not much analysis could be
+run on these, so I mainly focused on three of them: abilities, types,
+and stats. I wrote helper functions for each of these and ignored the
+others, since I figured most users wouldn’t really need them. However,
+if a user is truly curious they can still use the `fullPokeInfo()` to
+get a list that contains this information, then parse it from there.
+
+### `convertToTibble()` Function
+
+First is the `convertToTibble()` function. I will be using this to
+convert the “non-problem variables” into tibbles. It unpacks the lists
+and sorts them by row into a matrix, then converts it all to a data
+frame, then to a tibble. Most of the variables I use later are
+“non-problem variables”.
+
 ``` r
 # Create a function that will convert one of our output lists to a tibble.  I can't put this
 # In the functions above because some of the objects that are returned in the list won't fit into
@@ -296,6 +465,25 @@ convertToTibble <- function(list){
 ```
 
 ### Pokemon Helper Functions
+
+So when it comes to the Pokemon, the problem variables I want to look at
+are the abilities, types, and stats. These are all super important in
+the Pokemon games, and a summary of a Pokemon would be incomplete
+without them.
+
+#### `getAbilities()` Function
+
+First I want to start with the `getAbilities()` function. It goes into
+the “abilities” variable for a Pokemon and pulls out the names of the
+abilities that that Pokemon has. A Pokemon (with the exception of five
+or six) has a maximum of three potential abilities, almost all of them
+have only one or two. More information about abilities can be read
+here:  
+<https://bulbapedia.bulbagarden.net/wiki/Ability>
+
+To parse this data, I create a vector for each ability and fill them
+accordingly for each Pokemon. Then I return a tibble of three columns
+for each ability that I can later concatenate with.
 
 ``` r
 # Abilities are stored in a data frame, so I need a function to help convert to a tibble
@@ -319,6 +507,20 @@ getAbilities <- function(list){
   return(tibble(ability1, ability2, ability3))
 }
 ```
+
+#### `getStats()` Function
+
+Next, I wrote the `getStats()` function to go into the “stats” variable
+of a Pokemon. Every Pokemon has 6 stats: hp (hit points or “health”),
+attack, defense, special attack, special defense, and speed. These are
+technically a Pokemon’s base stats, they can get a lot more involved
+with stuff like IVs and EVs. If you want to read more about stats you
+can here:  
+<https://bulbapedia.bulbagarden.net/wiki/Stat>
+
+To parse this data, I create a vector for each stat and fill them
+accordingly for each Pokemon. Then I return a tibble of six columns for
+each stat that I can later concatenate with.
 
 ``` r
 # Since stats is also stored in a list, it will take some work to get out what I want
@@ -347,6 +549,19 @@ getStats <- function(list){
 }
 ```
 
+#### `getTypes()` Function
+
+Lastly for Pokemon, I wrote a `getTypes()` function. Every Pokemon has
+at least one type, some Pokemon have two. No Pokemon has more than two
+types. Types are super important in determining a Pokemon’s
+characteristics and battle strategy. More information on types can be
+found here:  
+<https://bulbapedia.bulbagarden.net/wiki/Type>
+
+To parse this data, I create a vector for each type and fill them
+accordingly for each pokemon in a list. Then I return a tibble that has
+two columns so that I can concatenate it later on.
+
 ``` r
 # Last but not least, we need types
 getTypes <- function(list){
@@ -369,6 +584,22 @@ getTypes <- function(list){
 
 ### Berry Helper Functions
 
+Next, I have some problem variables that are returned from the
+`berryInfo()` function. Fortunately, there is much less information on
+berries, which is to be expected since they are a far more minor part of
+the games. There are only 12 variables returned, and of those, 4 are
+problem variables. These are firmness, Natural Gift type, flavors, and
+item name.
+
+#### `getFirmness()` Function
+
+The first berry helper function deals with firmness. Honestly, I don’t
+know what firmness is or does, but I suppose it has a numeric value.
+There isn’t even a Bulbapedia article about it.
+
+This function simply accesses the “firmness” variable for each berry and
+returns the values as a single column tibble, to concatenate later.
+
 ``` r
 # Firmness is stored in a list, need a function to parse this data
 getFirmness <- function(list){
@@ -386,7 +617,17 @@ getFirmness <- function(list){
 }
 ```
 
+#### `getNatGiftType()` Function
+
+Natural Gift is a unique move in the Pokemon games. It allows for a
+Pokemon to consume a held berry, and depending on the berry, will do a
+certain amount of damage and have a certain type. You can read more
+about Natural Gift here:  
 <https://bulbapedia.bulbagarden.net/wiki/Natural_Gift_(move)>
+
+This function is relatively simple. It accesses the “natural_gift_type”
+variable from each of a list of berries and returns the types as a
+single column tibble, which can later be concatenated.
 
 ``` r
 # Natural Gift Type is stored in a list, need a function to parse this data
@@ -404,6 +645,20 @@ getNatGiftType <- function(list){
   return(tibble(natural_gift_type))
 }
 ```
+
+#### `getFlavors()` Function
+
+Every berry has varying values of five flavors. Flavors include spicy,
+dry, sweet, bitter, and sour. In the games, Pokemon of certain natures
+react differently to flavors and will have preferences. If you want to
+read more about flavors you can here:  
+<https://bulbapedia.bulbagarden.net/wiki/Flavor>
+
+This function is relatively similar to the `getStats()` function. It
+grabs the “flavors” variable for each berry in a list, then initializes
+empty vectors for each of the five flavors. Then it iterates through the
+list and appends the vectors accordingly. It returns a tibble of flavors
+which has five columns, which can be concatenated later.
 
 ``` r
 # Since flavors is also stored in a list, it will take some work to get out what I want
@@ -430,6 +685,19 @@ getFlavors <- function(list){
 }
 ```
 
+#### `getItem()` Function
+
+Last but not least (actually scratch that, certainly least) is the
+`getItem()` function. This function gets the item name, which is just
+the berry name, for the item… so yes, it is redundant. But I did it
+simply for the sake of completion because it was the only variable I had
+left.
+
+This is an straightforward function that grabs the “item” variable from
+a berry in a list. Then it gets the “name” for each berry, appends it to
+a vector, then converts that vector into a single column tibble ready to
+concatenate.
+
 ``` r
 # item name is stored in a list, need a function to parse this data
 getItem <- function(list){
@@ -447,7 +715,15 @@ getItem <- function(list){
 }
 ```
 
-## Create Pokemon Tibble
+## Create Pokemon Tibble with `pokeTibble()`
+
+At last, the end is in sight. We can use `pokeTibble()` to query
+whatever set of variables and Pokemon we want from the pokeAPI and
+convert it into a tibble. Using a bunch of conditional logic and
+explicit coercion, we can get a nicely parsed data set. A thing to note
+is that this throws an error if the user tries to query variables that
+are too problematic. Again, these variables can still be easily accessed
+in a list using `fullPokeInfo()`.
 
 ``` r
 # Function that will parse a pokemon query into a tibble 
@@ -530,7 +806,13 @@ pokeTibble <- function(pokemon = NULL, id = NULL, vars){
 }
 ```
 
-## Create Berry Tibble
+## Create Berry Tibble with `berryTibble()`
+
+This is another function that uses a bunch of conditional logic and
+explicit coercion to produce a nicely formatted tibble from a given set
+of berries and variables. This does not have an overly problematic
+variables, so any variable that can be returned from the `berryInfo()`
+function can be returned here but in a tibble.
 
 ``` r
 # Similar function but for berries, can take in berry or id and a vector of variables
@@ -606,9 +888,22 @@ berryTibble <- function(berry = NULL, id = NULL, vars){
 }
 ```
 
-<https://bulbapedia.bulbagarden.net/wiki/Berry>
+## Combine Tibble Functions Into One-Size-Fits-All Query Function with `queryAPI()`
 
-## Combine Tibble Functions Into One-Size-Fits-All Query Function
+At last, we have reached the end, the almight `queryAPI()` function.
+This is essentially a wrapper function that returns either a nicely
+parsed tibble for (nearly) any combination of Pokemon and (nearly) any
+combination of Pokemon variables or a tibble for any combination of
+berries and berry variables from the pokeAPI. This can take in two of
+six potential arguments, some combination of Pokemon names/ids and
+variables or berry names/ids and variables. If some combination other
+than this is passed, it will throw an error message notifying the user
+that something is wrong. Otherwise, it will appropriately return a
+tibble from one of either `pokeTibble()` for Pokemon data or
+`berryTibble()` for berry data.
+
+Also, last time I’m going to put this warning message:  
+**Please Note That id must be a continuous range from 1 to a number!!**
 
 ``` r
 # Lastly, we can wrap everything together to produce nice tibbles for either pokemon or berry queries
@@ -646,11 +941,21 @@ queryAPI <- function(pokemon = NULL, pokeid = NULL, pokevars = NULL, berry = NUL
 
 ## Demonstrate `queryAPI()`
 
+I want to demonstrate that queryAPI works for any combination of Pokemon
+names/ids and variables or berry names/ids and variables.
+
+First, I want to create a vector of Pokemon variables that I am
+interested in. Then I want to create a vector of berry variables that I
+am interested in.
+
 ``` r
 # These are the variables I am going to be working with in my EDA for pokemon and berries
 myPokeVars <- c("name", "id", "types", "abilities", "height", "weight", "is_baby", "is_legendary", "is_mythical", "capture_rate", "stats")
 myBerryVars <- c("name", "id", "growth_time", "max_harvest", "natural_gift_power", "size", "smoothness", "soil_dryness", "flavors", "natural_gift_type", "firmness", "item")
 ```
+
+This returns a tibble for Pikachu, Mewtwo, Greninja, and Jigglypuff
+containing all of the variables I want.
 
 ``` r
 # Test that it works for pokemon and pokevars combination
@@ -669,6 +974,9 @@ queryAPI(pokemon = c("pikachu", "mewtwo", "greninja", "igglybuff", "rayquaza"), 
     ## #   type2 <chr>, ability1 <chr>, ability2 <chr>,
     ## #   ability3 <chr>, hp <int>, attack <int>, defense <int>,
     ## #   special_attack <int>, special_defense <int>, speed <int>
+
+This returns a tibble for each of the first 10 pokemon in the pokedex
+containing all of the variables I want.
 
 ``` r
 # Test that it works for pokeid and pokevars combination
@@ -693,6 +1001,9 @@ queryAPI(pokeid = c(1:10), pokevars = myPokeVars)
     ## #   ability3 <chr>, hp <int>, attack <int>, defense <int>,
     ## #   special_attack <int>, special_defense <int>, speed <int>
 
+This returns a tibble for Cheri, Rawst, and Chesto berries containing
+all of the variables that I want.
+
 ``` r
 # Test that it works for berry and berryvars combination
 queryAPI(berry = c("cheri", "rawst", "chesto"), berryvars = myBerryVars)
@@ -708,6 +1019,9 @@ queryAPI(berry = c("cheri", "rawst", "chesto"), berryvars = myBerryVars)
     ## #   soil_dryness <int>, spicy <int>, dry <int>, sweet <int>,
     ## #   bitter <int>, sour <int>, natural_gift_type <chr>,
     ## #   firmness <chr>, item_name <chr>
+
+This returns a tibble for all of the berries (there are 64 total)
+containing all of the variables that I want.
 
 ``` r
 # Test that it works for berryid and berryvars combination
@@ -734,7 +1048,13 @@ queryAPI(berryid = 1:64, berryvars = myBerryVars)
 
 ## Exploratory Data Analysis (EDA)
 
+Now that we can easily query pokeAPI, it’s time to grab some nicely
+formatted data and analyze it with tables and graphs.
+
 ### Create My Data Sets
+
+Before I start, I want to make sure I get the variables I want, so I
+create vectors containing variable names for Pokemon and berries.
 
 ``` r
 # These are the variables I am going to be working with in my EDA for pokemon and berries
@@ -742,10 +1062,25 @@ myPokeVars <- c("name", "id", "types", "abilities", "height", "weight", "is_baby
 myBerryVars <- c("name", "id", "growth_time", "max_harvest", "natural_gift_power", "size", "smoothness", "soil_dryness", "flavors", "natural_gift_type", "firmness", "item")
 ```
 
+I create a tibble named “myPokeData” which contains all of the Pokemon
+from the first four generations (the first 493 Pokemon) and all of the
+19 variables I specified. This takes a decently long time to run. I
+tried to get a data set that contained all 905 current Pokemon, but that
+takes far too long and often returns a connection error with pokeAPI. So
+I decided to just stick with the first four generations, since those are
+the generations I am most familiar with. Also, sometimes this code chunk
+throws an error, most of the time it does not, it kind of just depends
+on how pokeAPI is feeling at the moment.
+
 ``` r
 # Generate data set for first four generations of pokemon (My childhood)
 myPokeData <- queryAPI(pokeid = 1:493, pokevars = myPokeVars)
 ```
+
+I also created a tibble containing berry data and named it
+“myBerryData”. This more or less contains everything from the “berry”
+endpoint of pokeAPI, since it has all of the variables and all of the 64
+berries, formatted into a tibble.
 
 ``` r
 # Generate data set for all berries (there are 64 total)
@@ -754,7 +1089,19 @@ myBerryData <- queryAPI(berryid = 1:64, berryvars = myBerryVars)
 
 ### Create generation Variable
 
+The first thing I want to do is create a “generation” variable for the
+myPokeData data set. This will basically take the id number (which is
+also the National Pokedex number) of a Pokemon and bin it into the
+correct generation. The list of generations, and their respective
+cutoffs, and be found here:  
 <https://bulbapedia.bulbagarden.net/wiki/Generation>
+
+To create this variable I created a vector of id integers. Then I
+created a vector called “generation” through a bunch of if/else logic
+based on the generational cutoff values. Then I appended generation onto
+myPokeData using the `mutate()` function from `dplyr`. Lastly, I printed
+off the `head()` and `tail()` of the new data set to make sure that it
+worked.
 
 ``` r
 # Convert id to numeric just for the purpose of subsetting
@@ -801,6 +1148,9 @@ tail(myPokeData) %>% select(name, id, generation)
 
 ### Create Some Contingency Tables
 
+We can now make some tables with the data. First, a one-way contingency
+table counting how many legendary Pokemon there are using `table()`.
+
 ``` r
 # Counts of legendaries and non-legendaries
 table(myPokeData$is_legendary)
@@ -809,6 +1159,12 @@ table(myPokeData$is_legendary)
     ## 
     ## FALSE  TRUE 
     ##   467    26
+
+Looks like there were 26 legendary Pokemon and 467 non-legendary Pokemon
+in generations 1 through 4.
+
+Next, look at a one-way contingency table counting how many Pokemon are
+of each type in the type 1 slot.
 
 ``` r
 # Counts of type 1s
@@ -823,6 +1179,12 @@ table(myPokeData$type1)
     ##     rock    steel    water 
     ##       27       14       83
 
+Looks like water is by far the most common type in the first four
+generations with 83 Pokemon, with normal not far behind at 72. The least
+common types were fairy at 8 and dark at 12.
+
+Next, let’s do the same thing but for the type 2 slot.
+
 ``` r
 # Counts of type 2s
 table(myPokeData$type2)
@@ -835,6 +1197,13 @@ table(myPokeData$type2)
     ##       64        4        9       26        7      258       26 
     ##  psychic     rock    steel    water 
     ##       23       10       11        9
+
+258 Pokemon have a single type, more than half of the 493 Pokemon. Of
+the second types, the most common was flying at 64 and the least common
+were fire and electric at 2.
+
+We can get a better look at this with a two-way contingency table of
+type1 and type2.
 
 ``` r
 # Counts of type 1s and type 2s
@@ -899,8 +1268,19 @@ table(myPokeData$type1, myPokeData$type2)
     ##   steel        0     0
     ##   water        1     0
 
+Since there are 17 types, this table is mostly 0s, but the most common
+types were normal/none and water/none. Of the Pokemon with second types,
+the most common was normal/flying with 17 Pokemon.
+
+One common complaint about Generation 4 was that there were hardly any
+new fire-type Pokemon available. This meant that players who liked using
+fire types were at a disadvantage, so many players chose the fire type
+starter Chimchar. We can look at a two-way contingency table between
+fire-types in type slot 1 and generation to see how many fire types were
+introduced in each generation.
+
 ``` r
-# Graph of Fire type 1s against generations
+# Counts of Fire type 1s against generations
 table(myPokeData$type1 == "fire", myPokeData$generation)
 ```
 
@@ -909,8 +1289,10 @@ table(myPokeData$type1 == "fire", myPokeData$generation)
     ##   FALSE 139  92 129 102
     ##   TRUE   12   8   6   5
 
+We should not forget to do this for the second type slot.
+
 ``` r
-# Graph of Fire type 2s against generations
+# Counts of Fire type 2s against generations
 table(myPokeData$type2 == "fire", myPokeData$generation)
 ```
 
@@ -918,6 +1300,14 @@ table(myPokeData$type2 == "fire", myPokeData$generation)
     ##           1   2   3   4
     ##   FALSE 151  98 135 107
     ##   TRUE    0   2   0   0
+
+Overall, there were 12 new fire-types in Generation 1, 10 in Gen 2, 6 in
+Gen 3, and 5 in Gen 4. While Generation 4 did have the least, generation
+3 was not far behind.
+
+I wanted to make a few contingency tables for berries as well, so first
+let’s look at the counts for Natural Gift type. How many berries are of
+each type?
 
 ``` r
 # One-way Contingency Table of Natural Gift Types
@@ -932,6 +1322,13 @@ table(myBerryData$natural_gift_type)
     ##     rock    steel    water 
     ##        4        3        4
 
+It looks like most Natural Gift types have 4 corresponding berries, but
+normal only has 1 (which is the Chilan Berry). Steel has 3.
+
+Natural Gift does either 60, 70, or 80 base damage depending on the
+berry. We can look at how many berries do which with a one-way
+contingency table.
+
 ``` r
 # One-way contingency table of Natural Gift Power
 table(myBerryData$natural_gift_power)
@@ -940,6 +1337,12 @@ table(myBerryData$natural_gift_power)
     ## 
     ## 60 70 80 
     ## 33 16 15
+
+33 berries do 60 damage, 16 berries do 70 damage, and 15 berries do 80
+damage.
+
+Lastly, let’s look at a two-way contingency table of Natural Gift power
+and firmness. This probably will not tell us much.
 
 ``` r
 # Two-way contingency table of natural gift power and firmness
@@ -952,7 +1355,16 @@ table(myBerryData$natural_gift_power, myBerryData$firmness)
     ##   70    6    5          2         2         1
     ##   80    3    4          2         4         2
 
-### Numerical Summaries Across Different Categories
+Again, not much meaning here. Some berries are hard and do less damage,
+others are soft and do more damage. Doesn’t really make sense.
+
+### Do Some Numerical Summaries
+
+Next, let’s look at some summaries of data, mainly across levels of
+categorical variables.
+
+We can quickly use the `summary()` function to look at a five-number
+summary of a variable. Let’s see the five-number summary of hp.
 
 ``` r
 # Five number summary of hp across all four generations
@@ -961,6 +1373,18 @@ summary(myPokeData$hp)
 
     ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
     ##    1.00   50.00   65.00   67.91   80.00  255.00
+
+It looks like the average hp for a Pokemon in generations 1 through 4 is
+about 66. The Pokemon that has 1 hp is Shedinja, and the Pokemon that
+has 255 hp is Blissey.
+
+We can use the `group_by()` and `summarize()` functions to look at
+custom summary statistics of numeric variables grouped by levels of
+categorical variables. Let’s see the mean, standard deviation, minimum,
+and maximum of capture rates, grouped by generation. The lower a capture
+rate is, the harder it is to catch in a Pokeball. More on capture rates
+here:  
+<https://bulbapedia.bulbagarden.net/wiki/Catch_rate>
 
 ``` r
 # Get numerical summaries for capture rates of pokemon across each generation
@@ -977,6 +1401,16 @@ myPokeData %>%
     ## 3 3          113.   83.8     3   255
     ## 4 4           78.9  69.5     3   255
 
+It looks like the average capture rates for generations 1 and 3 were
+higher than generations 2 and 4. This means that Pokemon in generations
+2 and 4 were on average harder to catch, gen 4 especially so.
+
+Next, let’s find the mean, standard deviation, minimum, and maximum of
+capture rates of legendary Pokemon versus non-legendary Pokemon.
+Legendary pokemon are notoriously hard to catch. More on legendary
+Pokemon here:  
+<https://bulbapedia.bulbagarden.net/wiki/Legendary_Pok%C3%A9mon>
+
 ``` r
 # Get numerical summaries for capture rates of pokemon based on whether or not they are legendary
 myPokeData %>%
@@ -989,6 +1423,19 @@ myPokeData %>%
     ##   <lgl>         <dbl> <dbl> <int> <int>
     ## 1 FALSE        105.   76.0      3   255
     ## 2 TRUE           4.62  8.24     3    45
+
+The average capture rate for legendary Pokemon is 4.6, whereas it is 104
+for non-legendaries. This shows the huge disparity in how hard legendary
+Pokemon are to catch. Even the easiest legendary Pokemon to catch only
+has a capture rate of 45.
+
+Baby Pokemon are what they sound like, Pokemon that are babies. Pokemon
+must be really small and really weak to be classified as a baby. Often,
+they will evolve into much stronger Pokemon, however. Since baby Pokemon
+are relatively weak, let’s see how they stack up in the attack stat
+against non-baby Pokemon using summary statistics. More on baby Pokemon
+here:  
+<https://bulbapedia.bulbagarden.net/wiki/Baby_Pok%C3%A9mon>
 
 ``` r
 # Get numerical summaries for attack stat of pokemon based on whether or not they are a baby pokemon
@@ -1003,6 +1450,15 @@ myPokeData %>%
     ## 1 FALSE    74.9  28.6     5   165
     ## 2 TRUE     39.2  24.1     5    85
 
+It looks like babies are weaker, but not by a huge amount. The average
+attack for a non-baby Pokemon is about 75 and the average attack for a
+baby Pokemon is about 39. The standard deviations of these are also
+relatively close.
+
+Next, we should look at some numeric summaries for our berry data.
+Grouped on each value of Natural Gift power, look at summary statistics
+for Growth Time.
+
 ``` r
 myBerryData %>%
   group_by(natural_gift_power) %>%
@@ -1015,6 +1471,12 @@ myBerryData %>%
     ## 1                 60 11.5   6.99     2    18
     ## 2                 70  6.88  3.98     2    15
     ## 3                 80 22.2   3.73    15    24
+
+It looks like berries that do more damage take longer to grow. This
+makes sense, since they should be harder to obtain.
+
+Lastly, let’s look at the summary statistics for size, grouped on each
+level of firmness.
 
 ``` r
 myBerryData %>%
@@ -1031,6 +1493,9 @@ myBerryData %>%
     ## 4 very-hard   122.  76.3    28   278
     ## 5 very-soft   124. 118.     28   300
 
+It appears that the average size remains relatively constant, near 120,
+for each level of firmness.
+
 ### Plots
 
 ``` r
@@ -1040,7 +1505,7 @@ ggplot(myPokeData, aes(x = attack, y = special_attack, color = type1)) + geom_po
   scale_color_discrete("Type 1")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
 # I needed to call in this fct_rev function to put the legendary pokemon on top, since they were on the bottom at first and I didn't like that.
@@ -1051,7 +1516,7 @@ ggplot(myPokeData, aes(x = generation)) + geom_bar(aes(fill = forcats::fct_rev(a
   scale_fill_manual(breaks = c(FALSE, TRUE), values = c("navy", "maroon"), name = " ", labels = c("Is Legendary", "Is Not Legendary"))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-40-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ``` r
 # Subset the data into just gens 1 and 2
@@ -1063,7 +1528,7 @@ ggplot(gens1and2, aes(x = speed)) + geom_histogram(bins = 25, aes(y = ..density.
   scale_fill_manual(name = "Generation", breaks = c("1", "2"), values = c("red", "orange"))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-41-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 ``` r
 # Create a boxplot for size for each value of natural gift power, since it's technically continuous, the colors will be a gradient.
@@ -1073,7 +1538,7 @@ ggplot(myBerryData, aes(x = as.factor(as.character(natural_gift_power)), y = siz
   scale_fill_continuous(name = "Natural Gift Power")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-42-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
 # Created a scatterplot of growth time vs. size, colored by natural gift type. Customized labels and title to make it look nice, also changed the size of legends and points, as well as opacity of points.
@@ -1082,4 +1547,4 @@ ggplot(myBerryData, aes(x = growth_time, y = size, color = natural_gift_type)) +
   scale_color_discrete("Natural Gift Type")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-43-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
