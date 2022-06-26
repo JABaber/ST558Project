@@ -986,12 +986,13 @@ interested in. Then I want to create a vector of berry variables that I
 am interested in.
 
 ``` r
-# These are the variables I am going to be working with in my EDA for pokemon and berries
+# These are the variables I am going to be working with in my EDA for pokemon and 
+# berries
 myPokeVars <- c("name", "id", "types", "abilities", "height", "weight", "is_baby", 
                 "is_legendary", "is_mythical", "capture_rate", "stats")
 myBerryVars <- c("name", "id", "growth_time", "max_harvest", "natural_gift_power", 
-                 "size", "smoothness", "soil_dryness", "flavors", "natural_gift_type", 
-                 "firmness", "item")
+                 "size", "smoothness", "soil_dryness", "flavors", 
+                 "natural_gift_type", "firmness", "item")
 ```
 
 This returns a tibble for Pikachu, Mewtwo, Greninja, and Jigglypuff
@@ -1098,7 +1099,8 @@ Before I start, I want to make sure I get the variables I want, so I
 create vectors containing variable names for Pokemon and berries.
 
 ``` r
-# These are the variables I am going to be working with in my EDA for pokemon and berries
+# These are the variables I am going to be working with in my EDA for pokemon and 
+# berries
 myPokeVars <- c("name", "id", "types", "abilities", "height", "weight", "is_baby", 
                 "is_legendary", "is_mythical", "capture_rate", "stats")
 myBerryVars <- c("name", "id", "growth_time", "max_harvest", "natural_gift_power", 
