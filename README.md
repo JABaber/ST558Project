@@ -17,7 +17,14 @@ Josh Baber
         Queries](#helper-functions-for-creating-tibbles-from-queries)
         -   [`convertToTibble()` Function](#converttotibble-function)
         -   [Pokemon Helper Functions](#pokemon-helper-functions)
+            -   [`getAbilities()` Function](#getabilities-function)
+            -   [`getStats()` Function](#getstats-function)
+            -   [`getTypes()` Function](#gettypes-function)
         -   [Berry Helper Functions](#berry-helper-functions)
+            -   [`getFirmness()` Function](#getfirmness-function)
+            -   [`getNatGiftType()` Function](#getnatgifttype-function)
+            -   [`getFlavors()` Function](#getflavors-function)
+            -   [`getItem()` Function](#getitem-function)
     -   [Create Pokemon Tibble with
         `pokeTibble()`](#create-pokemon-tibble-with-poketibble)
     -   [Create Berry Tibble with
@@ -59,15 +66,16 @@ Exploratory Data Analysis on, including plots and tables.
 
 Below is a list of packages that were used in this vignette:
 
--   [`jsonlite`](%22https://www.rdocumentation.org/packages/jsonlite/versions/1.8.0%22)
+-   [jsonlite](%22https://www.rdocumentation.org/packages/jsonlite/versions/1.8.0%22)
     Needed to convert raw JSON data from the API into lists via the
     `fromJSON()` function
--   [`tidyverse`](%22https://www.tidyverse.org/%22) Provided easy data
-    manipulation via functions from `dplyr` and `tidyr`, also used to
-    create graphs via `ggplot2`
--   [`forcats`](%22https://forcats.tidyverse.org/%22) A package I used
-    to implement one specific change I needed regarding one of the
-    graphs. I used the `fct_rev()` function for this.
+-   [tidyverse](%22https://www.tidyverse.org/%22) Provided easy data
+    manipulation via functions from
+    [dplyr](%22https://dplyr.tidyverse.org/%22) and graph creation via
+    functions from [ggplot2.](%22https://ggplot2.tidyverse.org/%22)
+-   [forcats](%22https://forcats.tidyverse.org/%22) A package I used to
+    implement one specific change I needed regarding one of the graphs.
+    I used the `fct_rev()` function for this.
 
 ``` r
 # Packages
@@ -96,8 +104,8 @@ When the function is run, it returns a list containing many variables
 from the “pokemon” endpoint.
 
 ``` r
-# Define getPokemon function, can be done with vector of strings (names) or ID numbers,
-# comes from pokemon endpoint
+# Define getPokemon function, can be done with vector of strings (names) or ID 
+# numbers, comes from pokemon endpoint
 getPokemon <- function(pokemon = NULL, id = NULL){
   # If both pokemon and id arguments provided, throw this error
   if(!is.null(pokemon) & !is.null(id)){
@@ -154,7 +162,8 @@ Pokemon, and make it iterable.
 # Define getPokeInfo function, can be done with strings (names) or id numbers,
 # comes from pokemon-species endpoint
 getPokeInfo <- function(pokemon = NULL, id = NULL){
-  # Check if both pokemon and id arguments were passed, if so, throw this error message
+  # Check if both pokemon and id arguments were passed, if so, throw this error 
+  # message
   if(!is.null(pokemon) & !is.null(id)){
     stop("Only can provide a vector of pokemon names or ids, not both")
   }
@@ -216,9 +225,10 @@ function, however, it won’t be formatted into a tibble and will remain a
 list.
 
 ``` r
-# Function that combines the data from the pokemon endpoint and the pokemon-species endpoint,
-# can pass it a vector of strings (names) or id numbers and optional argument vars which
-# will select only specified variables from each pokemon
+# Function that combines the data from the pokemon endpoint and the 
+# pokemon-species endpoint, can pass it a vector of strings (names) or id 
+# numbers and optional argument vars which will select only specified variables 
+# from each pokemon
 fullPokeInfo <- function(pokemon = NULL, id = NULL, vars = all()){
   # Checks if both a pokemon and id argument were passed, throws this error if so
   if(!is.null(pokemon) & !is.null(id)){
@@ -297,9 +307,11 @@ name or id, then it returns a list of variables from the API that have
 to do with that particular berry.
 
 ``` r
-# Define getBerry function, can be done with a vector of strings (names) or id numbers
+# Define getBerry function, can be done with a vector of strings (names) or id 
+# numbers
 getBerry <- function(berry = NULL, id = NULL){
-  # Check if both berry and id arguments passed, if so, need to throw this error message
+  # Check if both berry and id arguments passed, if so, need to throw this error 
+  # message
   if(!is.null(berry) & !is.null(id)){
     stop("Only can provide a vector of berry names or ids, not both")
   }
@@ -351,11 +363,12 @@ contain just the specified variables. This function will return a list
 that contains the specified variables for each berry that is specified.
 
 ``` r
-# Now we can customize a function that will allow us to get the info for a vector of berry names 
-# or id numbers.  Also we have an optional vars argument to pass a vector of variable names to 
-# keep, with all variables being the default
+# Now we can customize a function that will allow us to get the info for a vector 
+# of berry names or id numbers.  Also we have an optional vars argument to pass a 
+# vector of variable names to keep, with all variables being the default
 berryInfo <- function(berry = NULL, id = NULL, vars = all()){
-  # Check if both berry and id arguments were passed, if so, need to throw this error message
+  # Check if both berry and id arguments were passed, if so, need to throw this 
+  # error message
   if(!is.null(berry) & !is.null(id)){
     stop("Only can provide a vector of berry names or ids, not both")
   }
@@ -427,10 +440,11 @@ frame, then to a tibble. Most of the variables I use later are
 “non-problem variables”.
 
 ``` r
-# Create a function that will convert one of our output lists to a tibble.  I can't put this
-# In the functions above because some of the objects that are returned in the list won't fit into
-# A data frame with other objects.  We return several data frames, values, vectors, list, etc. so
-# we have to parse it all separately
+# Create a function that will convert one of our output lists to a tibble.  I 
+# can't put this in the functions above because some of the objects that are 
+# returned in the list won't fit into a data frame with other objects.  We 
+# return several data frames, values, vectors, list, etc. so we have to parse 
+# it all separately
 convertToTibble <- function(list){
   # Create a data frame from a matrix created from a list
   df = as.data.frame(matrix(unlist(list), nrow = length(list), byrow = T))
@@ -462,7 +476,8 @@ accordingly for each Pokemon. Then I return a tibble of three columns
 for each ability that I can later concatenate with.
 
 ``` r
-# Abilities are stored in a data frame, so I need a function to help convert to a tibble
+# Abilities are stored in a data frame, so I need a function to help convert to a 
+# tibble
 getAbilities <- function(list){
   # Subset to just the abilities for each pokemon in list
   abilities <- lapply(list, function(x)x["abilities"]$abilities)
@@ -472,12 +487,18 @@ getAbilities <- function(list){
   ability3 <- vector()
   # Loop through each pokemon's abilities list
   for(i in 1:length(abilities)){
-    # If there is not a 1st ability say "none", else return ability name to ability1
-    ability1[i] <- ifelse(is.na(abilities[[i]]$ability$name[1]), "none", abilities[[i]]$ability$name[1])
-    # If there is not a 2nd ability say "none", else return ability name to ability2
-    ability2[i] <- ifelse(is.na(abilities[[i]]$ability$name[2]), "none", abilities[[i]]$ability$name[2])
-    # If there is not a 3rd ability say "none", else return ability name to ability3
-    ability3[i] <- ifelse(is.na(abilities[[i]]$ability$name[3]), "none", abilities[[i]]$ability$name[3])
+    # If there is not a 1st ability say "none", else return ability name to 
+    # ability1
+    ability1[i] <- ifelse(is.na(abilities[[i]]$ability$name[1]), "none", 
+                          abilities[[i]]$ability$name[1])
+    # If there is not a 2nd ability say "none", else return ability name to 
+    # ability2
+    ability2[i] <- ifelse(is.na(abilities[[i]]$ability$name[2]), "none", 
+                          abilities[[i]]$ability$name[2])
+    # If there is not a 3rd ability say "none", else return ability name to 
+    # ability3
+    ability3[i] <- ifelse(is.na(abilities[[i]]$ability$name[3]), "none", 
+                          abilities[[i]]$ability$name[3])
   }
   # Return a tibble of the three ability columns
   return(tibble(ability1, ability2, ability3))
@@ -498,7 +519,8 @@ accordingly for each Pokemon. Then I return a tibble of six columns for
 each stat that I can later concatenate with.
 
 ``` r
-# Since stats is also stored in a list, it will take some work to get out what I want
+# Since stats is also stored in a list, it will take some work to get out what I 
+# want
 getStats <- function(list){
   # Subset to just the stats list for each pokemon in list
   stats <- lapply(list, function(x)x["stats"]$stats)
@@ -547,9 +569,11 @@ getTypes <- function(list){
   # Loop through each pokemon's types list
   for(i in 1:length(types)){
     # If there is not a 1st type, return "none", otherwise return the type name
-    type1[i] <- ifelse(is.na(types[[i]]$type$name[1]), "none", types[[i]]$type$name[1])
+    type1[i] <- ifelse(is.na(types[[i]]$type$name[1]), "none", 
+                       types[[i]]$type$name[1])
     # If there is not a 2nd type, return "none", otherwise return the type name
-    type2[i] <- ifelse(is.na(types[[i]]$type$name[2]), "none", types[[i]]$type$name[2])
+    type2[i] <- ifelse(is.na(types[[i]]$type$name[2]), "none", 
+                       types[[i]]$type$name[2])
   }
   # Return tibble of types
   return(tibble(type1, type2))
@@ -635,7 +659,8 @@ list and appends the vectors accordingly. It returns a tibble of flavors
 which has five columns, which can be concatenated later.
 
 ``` r
-# Since flavors is also stored in a list, it will take some work to get out what I want
+# Since flavors is also stored in a list, it will take some work to get out what I 
+# want
 getFlavors <- function(list){
   # Subset to just the flavors list for each berry in list
   flavors <- lapply(list, function(x)x["flavors"]$flavors)
@@ -704,21 +729,39 @@ in a list using `fullPokeInfo()`.
 pokeTibble <- function(pokemon = NULL, id = NULL, vars){
   # Get a list from fullPokeInfo()
   pokelist <- fullPokeInfo(pokemon = pokemon, id = id, vars = vars)
-  # These variables are data frames in the list, need to have use helper functions to get them usable
+  # These variables are data frames in the list, need to have use helper functions 
+  # to get them usable
   dfs <- c("types", "abilities", "stats")
   # These variables are not data frames and can be easily put into a tibble
-  nondfs <- c("name", "id", "height", "weight", "capture_rate", "base_experience", "base_happiness", "is_baby", "is_legendary", "is_mythical", "is_default", "order", "hatch_counter")
-  # These variables are either pretty useless, too large, contain urls, or are hard to work with and give me errors
-  badvars <- c("forms", "game_indices", "held_items", "location_area_encounters", "moves", "past_types", "species", "sprites", "color", "egg_groups", "evolution_chain", "flavor_text_entries", "form_descriptions", "has_gender_differences", "gender_rate", "evolves_from_species", "forms_switchable", "genera", "generation", "growth_rate", "habitat", "names", "pal_park_encounters", "pokedex_numbers", "shape", "varities")
-  # These variables are numeric, need to be explicitly coerced into numeric variables later
-  numericvars <- c("height", "weight", "capture_rate", "base_experience", "base_happiness", "order", "hatch_counter")
-  # These variables are logical, need to be explicitly coerced into logical variables later
+  nondfs <- c("name", "id", "height", "weight", "capture_rate", "base_experience", 
+              "base_happiness", "is_baby", "is_legendary", "is_mythical", 
+              "is_default", "order", "hatch_counter")
+  # These variables are either pretty useless, too large, contain urls, or are 
+  # hard to work with and give me errors
+  badvars <- c("forms", "game_indices", "held_items", "location_area_encounters", 
+               "moves", "past_types", "species", "sprites", "color", "egg_groups", 
+               "evolution_chain", "flavor_text_entries", "form_descriptions", 
+               "has_gender_differences", "gender_rate", "evolves_from_species", 
+               "forms_switchable", "genera", "generation", "growth_rate", 
+               "habitat", "names", "pal_park_encounters", "pokedex_numbers", 
+               "shape", "varities")
+  # These variables are numeric, need to be explicitly coerced into numeric 
+  # variables later
+  numericvars <- c("height", "weight", "capture_rate", "base_experience", 
+                   "base_happiness", "order", "hatch_counter")
+  # These variables are logical, need to be explicitly coerced into logical 
+  # variables later
   logicalvars <- c("is_baby", "is_legendary", "is_mythical", "is_default")
-  # First I want to throw an error if a "badvar" was passed in the vars argument, since they can't go
-  # in a tibble
+  # First I want to throw an error if a "badvar" was passed in the vars argument,
+  # since they can't go in a tibble
   for(i in badvars){
     if(i %in% vars){
-      stop(paste0(i, " is not a valid variable, please remove.  Valid variables include name, id, height, weight, capture_rate, base_experience, base_happiness, is_baby, is_legendary, is_mythical, is_default, order, evolves_from_species, forms_switchable, gender_rate, has_gender_differences, hatch_counter, types, abilities, and stats"))
+      stop(paste0(i, " is not a valid variable, please remove.  Valid variables 
+                  include name, id, height, weight, capture_rate, base_experience, 
+                  base_happiness, is_baby, is_legendary, is_mythical, is_default, 
+                  order, evolves_from_species, forms_switchable, gender_rate, 
+                  has_gender_differences, hatch_counter, types, abilities, and 
+                  stats"))
     }
   }
   # Next, initialize an empty vector for variables
@@ -731,13 +774,15 @@ pokeTibble <- function(pokemon = NULL, id = NULL, vars){
       nondfvars[i] <- i
     }
   }
-  # Now that we have a vector nondf vars that were passed, we can subset each pokemon's list and call it values
+  # Now that we have a vector nondf vars that were passed, we can subset each 
+  # pokemon's list and call it values
   values <- lapply(pokelist, function(x)x[nondfvars])
   # Convert to a tibble
   valuestibble <- convertToTibble(values)
   # Rename the columns
   colnames(valuestibble) <- nondfvars
-  # Next we need to consider our variables that are stuck in data frames, initialize an empty vector named dfvars
+  # Next we need to consider our variables that are stuck in data frames, 
+  # initialize an empty vector named dfvars
   dfvars = c()
   # For every df variable
   for(i in dfs){
@@ -747,17 +792,20 @@ pokeTibble <- function(pokemon = NULL, id = NULL, vars){
       dfvars[i] <- i
     }
   }
-  # Check if "types" was a variable passed, if so, create a types tibble using getTypes() and append it to the valuestibble
+  # Check if "types" was a variable passed, if so, create a types tibble using 
+  # getTypes() and append it to the valuestibble
   if("types" %in% dfvars){
     types <- getTypes(pokelist)
     valuestibble <- tibble(valuestibble, types)
   }
-  # Check if "abilities" was a variable passed, if so, create an abilities tibble using getAbilities() and append it to the valuestibble
+  # Check if "abilities" was a variable passed, if so, create an abilities tibble 
+  # using getAbilities() and append it to the valuestibble
   if("abilities" %in% dfvars){
     abilities <- getAbilities(pokelist)
     valuestibble <- tibble(valuestibble, abilities)
   }
-  # Check if "stats" was a variable passed, if so, create a stats tibble using getStats() and append it to the valuestibble
+  # Check if "stats" was a variable passed, if so, create a stats tibble using 
+  # getStats() and append it to the valuestibble
   if("stats" %in% dfvars){
     stats <- getStats(pokelist)
     valuestibble <- tibble(valuestibble, stats)
@@ -789,17 +837,23 @@ variables, so any variable that can be returned from the `berryInfo()`
 function can be returned here but in a tibble.
 
 ``` r
-# Similar function but for berries, can take in berry or id and a vector of variables
+# Similar function but for berries, can take in berry or id and a vector of 
+# variables
 berryTibble <- function(berry = NULL, id = NULL, vars){
   # Get a list of berry info from the berryInfo() function
   berrylist <- berryInfo(berry = berry, id = id, vars = vars)
-  # These are the variables that require extra parsing because they are in list/data frames
+  # These are the variables that require extra parsing because they are in 
+  # list/data frames
   dfs <- c("flavors", "natural_gift_type", "firmness", "item")
   # These variables do no require extra parsing
-  nondfs <- c("name", "id", "growth_time", "max_harvest", "natural_gift_power", "size", "smoothness", "soil_dryness")
-  # These variables are supposed to be numeric, will have to convert them to numeric later
-  numericvars <- c("growth_time", "max_harvest", "natural_gift_power", "size", "smoothness", "soil_dryness")
-  # Initialize an empty vector to hold nondf variables that were passed through vars argument
+  nondfs <- c("name", "id", "growth_time", "max_harvest", "natural_gift_power", 
+              "size", "smoothness", "soil_dryness")
+  # These variables are supposed to be numeric, will have to convert them to 
+  # numeric later
+  numericvars <- c("growth_time", "max_harvest", "natural_gift_power", "size", 
+                   "smoothness", "soil_dryness")
+  # Initialize an empty vector to hold nondf variables that were passed through 
+  # vars argument
   nondfvars = c()
   # For every variable in nondfs
   for(i in nondfs){
@@ -815,7 +869,8 @@ berryTibble <- function(berry = NULL, id = NULL, vars){
   valuestibble <- convertToTibble(values)
   # Rename the columns
   colnames(valuestibble) <- nondfvars
-  # Initialize an empty bector to hold df variables that were passed through vars argument
+  # Initialize an empty bector to hold df variables that were passed through vars 
+  # argument
   dfvars = c()
   # For every variable in dfs
   for(i in dfs){
@@ -831,14 +886,14 @@ berryTibble <- function(berry = NULL, id = NULL, vars){
     flavors <- getFlavors(berrylist)
     valuestibble <- tibble(valuestibble, flavors)
   }
-  # If "natural_gift_type" was in the vars argument, get the tibble using getNatGiftType, 
-  # then combine that tibble with the valuestibble
+  # If "natural_gift_type" was in the vars argument, get the tibble using 
+  # getNatGiftType, then combine that tibble with the valuestibble
   if("natural_gift_type" %in% dfvars){
     natural_gift_type <- getNatGiftType(berrylist)
     valuestibble <- tibble(valuestibble, natural_gift_type)
   }
-  # If "firmness" was in the vars argument, get the flavors tibble using getFirmness, 
-  # then combine that tibble with the valuestibble
+  # If "firmness" was in the vars argument, get the flavors tibble using 
+  # getFirmness, then combine that tibble with the valuestibble
   if("firmness" %in% dfvars){
     firmness <- getFirmness(berrylist)
     valuestibble <- tibble(valuestibble, firmness)
@@ -880,35 +935,43 @@ Also, last time I’m going to put this warning message:
 **Please Note That id must be a continuous range from 1 to a number!!**
 
 ``` r
-# Lastly, we can wrap everything together to produce nice tibbles for either pokemon or berry queries
-queryAPI <- function(pokemon = NULL, pokeid = NULL, pokevars = NULL, berry = NULL, berryid = NULL, berryvars = NULL){
+# Lastly, we can wrap everything together to produce nice tibbles for either 
+# pokemon or berry queries
+queryAPI <- function(pokemon = NULL, pokeid = NULL, pokevars = NULL, berry = NULL, 
+                     berryid = NULL, berryvars = NULL){
   # If only pokemon and pokevars arguments were passed
-  if(!is.null(pokemon) & !is.null(pokevars) & is.null(c(pokeid, berry, berryid, berryvars))){
+  if(!is.null(pokemon) & !is.null(pokevars) & is.null(c(pokeid, berry, berryid, 
+                                                        berryvars))){
     # Create a pokeTibble from the pokemon and pokevars arguments and return it
     poketibble <- pokeTibble(pokemon = pokemon, vars = pokevars)
     return(poketibble)
   }
   # Else if only pokeid and pokevars arguments were passed
-  else if(!is.null(pokeid) & !is.null(pokevars) & is.null(c(pokemon, berry, berryid, berryvars))){
+  else if(!is.null(pokeid) & !is.null(pokevars) & is.null(c(pokemon, berry, 
+                                                            berryid, berryvars))){
     # Create a pokeTibble from the pokeid and pokevars arguments and return it
     poketibble <- pokeTibble(id = pokeid, vars = pokevars)
     return(poketibble)
   }
   # Else if only berry and berryvars arguments were passed
-  else if(!is.null(berry) & !is.null(berryvars) & is.null(c(pokemon, pokeid, pokevars, berryid))){
+  else if(!is.null(berry) & !is.null(berryvars) & is.null(c(pokemon, pokeid, 
+                                                            pokevars, berryid))){
     # Create a berryTibble from the berry and berryvars arguments and return it
     berrytibble <- berryTibble(berry = berry, vars = berryvars)
     return(berrytibble)
   }
   # Else if only berryid and berryvars arguments were passed
-  else if(!is.null(berryid) & !is.null(berryvars) & is.null(c(pokemon, pokeid, pokevars, berry))){
+  else if(!is.null(berryid) & !is.null(berryvars) & is.null(c(pokemon, pokeid, 
+                                                              pokevars, berry))){
     # Create a berryTibble the berryid and berryvars arguments and return it
     berrytibble <- berryTibble(id = berryid, vars = berryvars)
     return(berrytibble)
   }
-  # If some other combination of arguments was passed, it is invalid, return this error message
+  # If some other combination of arguments was passed, it is invalid, return this 
+  # error message
   else{
-    stop("Must provided either names and variables or ids and variables for pokemon or for berries, not both!")
+    stop("Must provided either names and variables or ids and variables for 
+         pokemon or for berries, not both!")
   }
 }
 ```
@@ -924,8 +987,11 @@ am interested in.
 
 ``` r
 # These are the variables I am going to be working with in my EDA for pokemon and berries
-myPokeVars <- c("name", "id", "types", "abilities", "height", "weight", "is_baby", "is_legendary", "is_mythical", "capture_rate", "stats")
-myBerryVars <- c("name", "id", "growth_time", "max_harvest", "natural_gift_power", "size", "smoothness", "soil_dryness", "flavors", "natural_gift_type", "firmness", "item")
+myPokeVars <- c("name", "id", "types", "abilities", "height", "weight", "is_baby", 
+                "is_legendary", "is_mythical", "capture_rate", "stats")
+myBerryVars <- c("name", "id", "growth_time", "max_harvest", "natural_gift_power", 
+                 "size", "smoothness", "soil_dryness", "flavors", "natural_gift_type", 
+                 "firmness", "item")
 ```
 
 This returns a tibble for Pikachu, Mewtwo, Greninja, and Jigglypuff
@@ -933,7 +999,8 @@ containing all of the variables I want.
 
 ``` r
 # Test that it works for pokemon and pokevars combination
-queryAPI(pokemon = c("pikachu", "mewtwo", "greninja", "igglybuff", "rayquaza"), pokevars = myPokeVars)
+queryAPI(pokemon = c("pikachu", "mewtwo", "greninja", "igglybuff", "rayquaza"), 
+         pokevars = myPokeVars)
 ```
 
     ## # A tibble: 5 × 19
@@ -1032,8 +1099,11 @@ create vectors containing variable names for Pokemon and berries.
 
 ``` r
 # These are the variables I am going to be working with in my EDA for pokemon and berries
-myPokeVars <- c("name", "id", "types", "abilities", "height", "weight", "is_baby", "is_legendary", "is_mythical", "capture_rate", "stats")
-myBerryVars <- c("name", "id", "growth_time", "max_harvest", "natural_gift_power", "size", "smoothness", "soil_dryness", "flavors", "natural_gift_type", "firmness", "item")
+myPokeVars <- c("name", "id", "types", "abilities", "height", "weight", "is_baby", 
+                "is_legendary", "is_mythical", "capture_rate", "stats")
+myBerryVars <- c("name", "id", "growth_time", "max_harvest", "natural_gift_power", 
+                 "size", "smoothness", "soil_dryness", "flavors", 
+                 "natural_gift_type", "firmness", "item")
 ```
 
 I create a tibble named “myPokeData” which contains all of the Pokemon
@@ -1075,12 +1145,13 @@ created a vector called “generation” through a bunch of if/else logic
 based on the generational cutoff values. Then I appended generation onto
 myPokeData using the `mutate()` function from `dplyr`. Lastly, I printed
 off the `head()` and `tail()` of the new data set to make sure that it
-worked.
+worked. You can use the slider to look at the full code chunk.
 
 ``` r
 # Convert id to numeric just for the purpose of subsetting
 idnums <- as.integer(myPokeData$id)
-# Bin based on the id variables using ifelse() and save as a vector named generation.  These values came from bulbapedia.
+# Bin based on the id variables using ifelse() and save as a vector named 
+# generation.  These values came from bulbapedia.
 generation <- ifelse(idnums <= 151, "1",
                        ifelse(idnums > 151 & idnums <= 251 , "2",
                                 ifelse(idnums > 251 & idnums <= 386, "3",
@@ -1363,7 +1434,8 @@ here.](%22https://bulbapedia.bulbagarden.net/wiki/Catch_rate%22)
 # Get numerical summaries for capture rates of pokemon across each generation
 myPokeData %>% 
   group_by(generation) %>% 
-  summarize(mean = mean(capture_rate), sd = sd(capture_rate), min = min(capture_rate), max = max(capture_rate))
+  summarize(mean = mean(capture_rate), sd = sd(capture_rate), 
+            min = min(capture_rate), max = max(capture_rate))
 ```
 
     ## # A tibble: 4 × 5
@@ -1385,10 +1457,12 @@ Pokemon
 here.](%22https://bulbapedia.bulbagarden.net/wiki/Legendary_Pok%C3%A9mon%22)
 
 ``` r
-# Get numerical summaries for capture rates of pokemon based on whether or not they are legendary
+# Get numerical summaries for capture rates of pokemon based on whether or not 
+# they are legendary
 myPokeData %>%
   group_by(is_legendary) %>%
-  summarize(mean = mean(capture_rate), sd = sd(capture_rate), min = min(capture_rate), max = max(capture_rate))
+  summarize(mean = mean(capture_rate), sd = sd(capture_rate), 
+            min = min(capture_rate), max = max(capture_rate))
 ```
 
     ## # A tibble: 2 × 5
@@ -1410,10 +1484,12 @@ against non-baby Pokemon using summary statistics. [More on baby Pokemon
 here.](%22https://bulbapedia.bulbagarden.net/wiki/Baby_Pok%C3%A9mon%22)
 
 ``` r
-# Get numerical summaries for attack stat of pokemon based on whether or not they are a baby pokemon
+# Get numerical summaries for attack stat of pokemon based on whether or not they 
+# are a baby pokemon
 myPokeData %>%
   group_by(is_baby) %>%
-  summarize(mean = mean(attack), sd = sd(attack), min = min(attack), max = max(attack))
+  summarize(mean = mean(attack), sd = sd(attack), min = min(attack), 
+            max = max(attack))
 ```
 
     ## # A tibble: 2 × 5
@@ -1432,9 +1508,11 @@ Grouped on each value of Natural Gift power, look at summary statistics
 for Growth Time.
 
 ``` r
+# Get numerical summaries for growth times grouped by Natural Gift powers
 myBerryData %>%
   group_by(natural_gift_power) %>%
-  summarize(mean = mean(growth_time), sd = sd(growth_time), min = min(growth_time), max = max(growth_time))
+  summarize(mean = mean(growth_time), sd = sd(growth_time), min = min(growth_time), 
+            max = max(growth_time))
 ```
 
     ## # A tibble: 3 × 5
@@ -1451,6 +1529,7 @@ Lastly, let’s look at the summary statistics for size, grouped on each
 level of firmness.
 
 ``` r
+# Get numerical summaries for size grouped by firmness
 myBerryData %>%
   group_by(firmness) %>%
   summarize(mean = mean(size), sd = sd(size), min = min(size), max = max(size))
@@ -1484,9 +1563,13 @@ mind. Most Pokemon use a mix to these two types of attacks, but certain
 types are more prone to having one be higher than the other.
 
 ``` r
-# Scatterplot of Special Attack vs. Attack, colored by Type 1.  I gave custom labels and title.  Also change the opacity and size of the point and the size of the legend.
-ggplot(myPokeData, aes(x = attack, y = special_attack, color = type1)) + geom_point(alpha = 0.5, size = 2) +
-  theme(legend.key.size = unit(0.5, "cm")) + labs(x = "Attack", y = "Special Attack", title = "Attack vs. Special Attack Colored by Type 1 (Gens 1 Thru 4)") +
+# Scatterplot of Special Attack vs. Attack, colored by Type 1.  I gave custom 
+# labels and title.  Also change the opacity and size of the point and the size 
+# of the legend.
+ggplot(myPokeData, aes(x = attack, y = special_attack, color = type1)) + 
+  geom_point(alpha = 0.5, size = 2) + theme(legend.key.size = unit(0.5, "cm")) + 
+  labs(x = "Attack", y = "Special Attack", 
+       title = "Attack vs. Special Attack Colored by Type 1 (Gens 1 Thru 4)") +
   scale_color_discrete("Type 1")
 ```
 
@@ -1512,12 +1595,19 @@ the bottom of the bars, which I thought looked dumb, so I used the
 `fct_rev()` function from the `forcats` package to reverse their order.
 
 ``` r
-# I needed to call in this fct_rev function to put the legendary pokemon on top, since they were on the bottom at first and I didn't like that.
+# I needed to call in this fct_rev function to put the legendary pokemon on top, 
+# since they were on the bottom at first and I didn't like that.
 library(forcats)
-# Create a bar plot of total pokemon counts by generation.  Also filled bars based on whether or not pokemon were legendary.  This allows us to see the total amount of legendary pokemon as well.  Added custom labels, title, legend, and colors with labs() and scale_fill_manual()
-ggplot(myPokeData, aes(x = generation)) + geom_bar(aes(fill = forcats::fct_rev(as.factor(is_legendary)))) + 
-  labs(x = "Generation", y = "Total Number of Pokemon", title = "Total Number Of Pokemon and Legendaries by Generation") +
-  scale_fill_manual(breaks = c(FALSE, TRUE), values = c("navy", "maroon"), name = " ", labels = c("Is Legendary", "Is Not Legendary"))
+# Create a bar plot of total pokemon counts by generation.  Also filled bars based 
+# on whether or not pokemon were legendary.  This allows us to see the total amount 
+# of legendary pokemon as well.  Added custom labels, title, legend, and colors 
+# with labs() and scale_fill_manual()
+ggplot(myPokeData, aes(x = generation)) + 
+  geom_bar(aes(fill = forcats::fct_rev(as.factor(is_legendary)))) + 
+  labs(x = "Generation", y = "Total Number of Pokemon", 
+       title = "Total Number Of Pokemon and Legendaries by Generation") +
+  scale_fill_manual(breaks = c(FALSE, TRUE), values = c("navy", "maroon"), 
+                    name = " ", labels = c("Is Legendary", "Is Not Legendary"))
 ```
 
 ![](README_files/figure-gfm/total%20pokemon%20by%20generation%20bar%20plot-1.png)<!-- -->
@@ -1536,11 +1626,16 @@ I also overlaid a kernel density smoother on top of the histogram.
 ``` r
 # Subset the data into just gens 1 and 2
 gens1and2 <- myPokeData %>% filter(generation < 3)
-#  Create two histograms, one for each generation, with 25 bins for the speed stat.  Overlay a Density plot on each of them.  Customize labels, title, legend, and colors.
-ggplot(gens1and2, aes(x = speed)) + geom_histogram(bins = 25, aes(y = ..density.., fill = generation)) +
+# Create two histograms, one for each generation, with 25 bins for the speed stat. 
+# Overlay a Density plot on each of them.  Customize labels, title, legend, and 
+# colors.
+ggplot(gens1and2, aes(x = speed)) + 
+  geom_histogram(bins = 25, aes(y = ..density.., fill = generation)) +
   geom_density(aes(fill = generation), alpha = 0.6, position = "stack") + 
-  labs(x = "Speed", y = "Density", title = "Histogram and Kernel Smoother of Speed for Generations 1 and 2") +
-  scale_fill_manual(name = "Generation", breaks = c("1", "2"), values = c("red", "orange"))
+  labs(x = "Speed", y = "Density", 
+       title = "Histogram and Kernel Smoother of Speed for Generations 1 and 2") +
+  scale_fill_manual(name = "Generation", breaks = c("1", "2"), 
+                    values = c("red", "orange"))
 ```
 
 ![](README_files/figure-gfm/speed%20in%20generations%201%20and%202%20histogram-1.png)<!-- -->
@@ -1559,10 +1654,13 @@ thought that perhaps larger berries would do more damage than smaller
 berries.
 
 ``` r
-# Create a boxplot for size for each value of natural gift power, since it's technically continuous, the colors will be a gradient.
-# Made custom legend, labels, and title.
-ggplot(myBerryData, aes(x = as.factor(as.character(natural_gift_power)), y = size, fill = natural_gift_power)) + geom_boxplot() +
-  labs(x = "Natural Gift Power", y = "Size", title = "Boxplots for Size at Each Level of Natural Gift Power") +
+# Create a boxplot for size for each value of natural gift power, since it's 
+# technically continuous, the colors will be a gradient. Made custom legend, 
+# labels, and title.
+ggplot(myBerryData, aes(x = as.factor(as.character(natural_gift_power)), y = size, 
+                        fill = natural_gift_power)) + geom_boxplot() +
+  labs(x = "Natural Gift Power", y = "Size", 
+       title = "Boxplots for Size at Each Level of Natural Gift Power") +
   scale_fill_continuous(name = "Natural Gift Power")
 ```
 
@@ -1584,9 +1682,13 @@ each berry by its corresponding Natural Gift type, although I don’t
 think there will be much of a pattern with that.
 
 ``` r
-# Created a scatterplot of growth time vs. size, colored by natural gift type. Customized labels and title to make it look nice, also changed the size of legends and points, as well as opacity of points.
-ggplot(myBerryData, aes(x = growth_time, y = size, color = natural_gift_type)) + geom_point(alpha = 0.5, size = 2) +
-  theme(legend.key.size = unit(0.5, "cm")) + labs(x = "Growth Time", y = "Size", title = "Growth Time vs. Size, Colored by Natural Gift Type") +
+# Created a scatterplot of growth time vs. size, colored by natural gift type. 
+# Customized labels and title to make it look nice, also changed the size of 
+# legends and points, as well as opacity of points.
+ggplot(myBerryData, aes(x = growth_time, y = size, color = natural_gift_type)) + 
+  geom_point(alpha = 0.5, size = 2) + theme(legend.key.size = unit(0.5, "cm")) + 
+  labs(x = "Growth Time", y = "Size", 
+       title = "Growth Time vs. Size, Colored by Natural Gift Type") +
   scale_color_discrete("Natural Gift Type")
 ```
 
