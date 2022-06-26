@@ -3,10 +3,8 @@ Pokemon API Vignette
 Josh Baber
 6/23/2022
 
--   [Using PokeAPI](#using-pokeapi)
-    -   [Josh Baber](#josh-baber)
+-   [Interacting With PokeAPI](#interacting-with-pokeapi)
     -   [Introduction](#introduction)
-    -   [Setup](#setup)
     -   [Packages](#packages)
     -   [Pokemon Query Functions](#pokemon-query-functions)
         -   [`getPokemon()` Function](#getpokemon-function)
@@ -36,19 +34,20 @@ Josh Baber
             Tables](#create-some-contingency-tables)
         -   [Do Some Numerical Summaries](#do-some-numerical-summaries)
         -   [Plots](#plots)
+    -   [Conclusions](#conclusions)
 
-# Using PokeAPI
+# Interacting With PokeAPI
 
-## Josh Baber
+Josh Baber 6/26/2022
 
 ## Introduction
 
-This is a vignette created to interact with the Pokemon API found at
-<https://pokeapi.co/> which houses just about any and all data related
-to main series Pokemon games. This vignette will contain the functions I
-created to not only pull data from the API, but to parse some of it into
-workable data and format it into tibbles. The endpoints I pull from
-include <https://pokeapi.co/api/v2/pokemon/> ,
+This is a vignette created to interact with the
+[pokeAPI](%22https://pokeapi.co/%22) which houses just about any and all
+data related to main series Pokemon games. This vignette will contain
+the functions I created to not only pull data from the API, but to parse
+some of it into workable data and format it into tibbles. The endpoints
+I pull from include <https://pokeapi.co/api/v2/pokemon/> ,
 <https://pokeapi.co/api/v2/berry/> , and
 <https://pokeapi.co/api/v2/pokemon-species/> . By the end, I will have a
 `queryAPI()` function that will allow users to query information about
@@ -56,44 +55,22 @@ any Pokemon or berry, either by name or by id number. Lastly, I will use
 my `queryAPI()` function to produce data sets that I can perform some
 Exploratory Data Analysis on, including plots and tables.
 
-## Setup
-
-This code chunk sets a global option to print out all code chunks.
-
-``` r
-# Ensures all code chunks show by default
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-This code chunk contains my `render()` function, which I used to upload
-my .Rmd file to github as a .md file, which in turn becomes this web
-page.
-
-``` r
-# render function, doesn't eval just here to copy/paste into console
-rmarkdown::render('README.Rmd', 
-                  output_format = "github_document",
-                  output_options = list(
-                    html_preview = FALSE
-                    )
-                  )
-```
-
 ## Packages
 
-Below is a list of packages that were used in this vignette. \* `knitr`
-was used to set the global option to return all code. \* `rmarkdown` was
-used to render the file as a markdown file. \* `jsonlite` Needed to
-convert raw JSON data from the API into lists via the `fromJSON()`
-function \* `tidyverse` Provided easy data manipulation via functions
-from `dplyr` and `tidyr`, also used to create graphs via `ggplot2` \*
-`forcats` A package I used to implement one specific change I needed
-regarding one of the graphs. I used the `fct_rev()` function for this.
+Below is a list of packages that were used in this vignette:
+
+-   [`jsonlite`](%22https://www.rdocumentation.org/packages/jsonlite/versions/1.8.0%22)
+    Needed to convert raw JSON data from the API into lists via the
+    `fromJSON()` function
+-   [`tidyverse`](%22https://www.tidyverse.org/%22) Provided easy data
+    manipulation via functions from `dplyr` and `tidyr`, also used to
+    create graphs via `ggplot2`
+-   [`forcats`](%22https://forcats.tidyverse.org/%22) A package I used
+    to implement one specific change I needed regarding one of the
+    graphs. I used the `fct_rev()` function for this.
 
 ``` r
 # Packages
-library(knitr)
-library(rmarkdown)
 library(jsonlite)
 library(tidyverse)
 library(forcats)
@@ -107,9 +84,9 @@ library(forcats)
 
 The first function is going to query data from the “pokemon” endpoint.
 It can take in a Pokemon name as a string, or it can take in an id
-number, which corresponds to a Pokemon’s “Pokedex” number. A list of
-Pokemon can be found here:
-<https://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_National_Pok%C3%A9dex_number>
+number, which corresponds to a Pokemon’s “Pokedex” number. [A list of
+Pokemon can be found
+here.](%22https://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_National_Pok%C3%A9dex_number%22)
 
 The pokeAPI’s information matches up with much of what Bulbapedia has,
 so it can be useful to consider Bulbapedia in addition to the pokeAPI
@@ -311,9 +288,9 @@ fullPokeInfo <- function(pokemon = NULL, id = NULL, vars = all()){
 Much like we did for reaching out to the Pokemon endpoints, we can reach
 out to the “berry” endpoint to return information about berries. In
 Pokemon games, berries have many unique properties. They all have
-different flavors, growth times, sizes, firmnesses, and more. More
-information about berries can be found here:  
-<https://bulbapedia.bulbagarden.net/wiki/Berry>
+different flavors, growth times, sizes, firmnesses, and more. [More
+information about berries can be found
+here.](%22https://bulbapedia.bulbagarden.net/wiki/Berry%22)
 
 Similar to the `getPokemon()` function, `getBerry()` queries a berry via
 name or id, then it returns a list of variables from the API that have
@@ -477,9 +454,8 @@ First I want to start with the `getAbilities()` function. It goes into
 the “abilities” variable for a Pokemon and pulls out the names of the
 abilities that that Pokemon has. A Pokemon (with the exception of five
 or six) has a maximum of three potential abilities, almost all of them
-have only one or two. More information about abilities can be read
-here:  
-<https://bulbapedia.bulbagarden.net/wiki/Ability>
+have only one or two. [More information about abilities can be read
+here](%22https://bulbapedia.bulbagarden.net/wiki/Ability%22)
 
 To parse this data, I create a vector for each ability and fill them
 accordingly for each Pokemon. Then I return a tibble of three columns
@@ -514,9 +490,8 @@ Next, I wrote the `getStats()` function to go into the “stats” variable
 of a Pokemon. Every Pokemon has 6 stats: hp (hit points or “health”),
 attack, defense, special attack, special defense, and speed. These are
 technically a Pokemon’s base stats, they can get a lot more involved
-with stuff like IVs and EVs. If you want to read more about stats you
-can here:  
-<https://bulbapedia.bulbagarden.net/wiki/Stat>
+with stuff like IVs and EVs. [If you want to read more about stats you
+can here.](%22https://bulbapedia.bulbagarden.net/wiki/Stat%22)
 
 To parse this data, I create a vector for each stat and fill them
 accordingly for each Pokemon. Then I return a tibble of six columns for
@@ -554,9 +529,8 @@ getStats <- function(list){
 Lastly for Pokemon, I wrote a `getTypes()` function. Every Pokemon has
 at least one type, some Pokemon have two. No Pokemon has more than two
 types. Types are super important in determining a Pokemon’s
-characteristics and battle strategy. More information on types can be
-found here:  
-<https://bulbapedia.bulbagarden.net/wiki/Type>
+characteristics and battle strategy. [More information on types can be
+found here.](%22https://bulbapedia.bulbagarden.net/wiki/Type%22)
 
 To parse this data, I create a vector for each type and fill them
 accordingly for each pokemon in a list. Then I return a tibble that has
@@ -621,9 +595,9 @@ getFirmness <- function(list){
 
 Natural Gift is a unique move in the Pokemon games. It allows for a
 Pokemon to consume a held berry, and depending on the berry, will do a
-certain amount of damage and have a certain type. You can read more
-about Natural Gift here:  
-<https://bulbapedia.bulbagarden.net/wiki/Natural_Gift_(move)>
+certain amount of damage and have a certain type. [You can read more
+about Natural Gift
+here](%22https://bulbapedia.bulbagarden.net/wiki/Natural_Gift_(move)%22)
 
 This function is relatively simple. It accesses the “natural_gift_type”
 variable from each of a list of berries and returns the types as a
@@ -890,7 +864,7 @@ berryTibble <- function(berry = NULL, id = NULL, vars){
 
 ## Combine Tibble Functions Into One-Size-Fits-All Query Function with `queryAPI()`
 
-At last, we have reached the end, the almight `queryAPI()` function.
+At last, we have reached the end, the almighty `queryAPI()` function.
 This is essentially a wrapper function that returns either a nicely
 parsed tibble for (nearly) any combination of Pokemon and (nearly) any
 combination of Pokemon variables or a tibble for any combination of
@@ -975,7 +949,7 @@ queryAPI(pokemon = c("pikachu", "mewtwo", "greninja", "igglybuff", "rayquaza"), 
     ## #   ability3 <chr>, hp <int>, attack <int>, defense <int>,
     ## #   special_attack <int>, special_defense <int>, speed <int>
 
-This returns a tibble for each of the first 10 pokemon in the pokedex
+This returns a tibble for each of the first 10 Pokemon in the Pokedex
 containing all of the variables I want.
 
 ``` r
@@ -1093,8 +1067,8 @@ The first thing I want to do is create a “generation” variable for the
 myPokeData data set. This will basically take the id number (which is
 also the National Pokedex number) of a Pokemon and bin it into the
 correct generation. The list of generations, and their respective
-cutoffs, and be found here:  
-<https://bulbapedia.bulbagarden.net/wiki/Generation>
+cutoffs, [can be found
+here.](%22https://bulbapedia.bulbagarden.net/wiki/Generation%22)
 
 To create this variable I created a vector of id integers. Then I
 created a vector called “generation” through a bunch of if/else logic
@@ -1382,9 +1356,8 @@ We can use the `group_by()` and `summarize()` functions to look at
 custom summary statistics of numeric variables grouped by levels of
 categorical variables. Let’s see the mean, standard deviation, minimum,
 and maximum of capture rates, grouped by generation. The lower a capture
-rate is, the harder it is to catch in a Pokeball. More on capture rates
-here:  
-<https://bulbapedia.bulbagarden.net/wiki/Catch_rate>
+rate is, the harder it is to catch in a Pokeball. [More on capture rates
+here.](%22https://bulbapedia.bulbagarden.net/wiki/Catch_rate%22)
 
 ``` r
 # Get numerical summaries for capture rates of pokemon across each generation
@@ -1407,9 +1380,9 @@ higher than generations 2 and 4. This means that Pokemon in generations
 
 Next, let’s find the mean, standard deviation, minimum, and maximum of
 capture rates of legendary Pokemon versus non-legendary Pokemon.
-Legendary pokemon are notoriously hard to catch. More on legendary
-Pokemon here:  
-<https://bulbapedia.bulbagarden.net/wiki/Legendary_Pok%C3%A9mon>
+Legendary Pokemon are notoriously hard to catch. [More on legendary
+Pokemon
+here.](%22https://bulbapedia.bulbagarden.net/wiki/Legendary_Pok%C3%A9mon%22)
 
 ``` r
 # Get numerical summaries for capture rates of pokemon based on whether or not they are legendary
@@ -1433,9 +1406,8 @@ Baby Pokemon are what they sound like, Pokemon that are babies. Pokemon
 must be really small and really weak to be classified as a baby. Often,
 they will evolve into much stronger Pokemon, however. Since baby Pokemon
 are relatively weak, let’s see how they stack up in the attack stat
-against non-baby Pokemon using summary statistics. More on baby Pokemon
-here:  
-<https://bulbapedia.bulbagarden.net/wiki/Baby_Pok%C3%A9mon>
+against non-baby Pokemon using summary statistics. [More on baby Pokemon
+here.](%22https://bulbapedia.bulbagarden.net/wiki/Baby_Pok%C3%A9mon%22)
 
 ``` r
 # Get numerical summaries for attack stat of pokemon based on whether or not they are a baby pokemon
@@ -1498,14 +1470,46 @@ for each level of firmness.
 
 ### Plots
 
+The final thing I’m going to do in this vignette is create some plots of
+categorical and numeric data. All of these plots use the `ggplot2`
+package and involve some sort of multi-level layering or grouping.
+
+The first plot I created is a scatter plot colored by type 1 slot, with
+attack on the x axis and special attack on the y axis for generations 1
+through 4. The distinction between special and regular attack stats is
+that there are two types of attacking moves: Special and Physical. An
+easy way to think of this, is that a fighting type Pokemon will attack
+with their fists, but a psychic type Pokemon will attack with their
+mind. Most Pokemon use a mix to these two types of attacks, but certain
+types are more prone to having one be higher than the other.
+
 ``` r
 # Scatterplot of Special Attack vs. Attack, colored by Type 1.  I gave custom labels and title.  Also change the opacity and size of the point and the size of the legend.
 ggplot(myPokeData, aes(x = attack, y = special_attack, color = type1)) + geom_point(alpha = 0.5, size = 2) +
-  theme(legend.key.size = unit(0.5, "cm")) + labs(x = "Attack", y = "Special Attack", title = "Attack vs. Special Attack Colored by Type 1") +
+  theme(legend.key.size = unit(0.5, "cm")) + labs(x = "Attack", y = "Special Attack", title = "Attack vs. Special Attack Colored by Type 1 (Gens 1 Thru 4)") +
   scale_color_discrete("Type 1")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](README_files/figure-gfm/attack%20vs%20special%20attack%20scatterplot-1.png)<!-- -->
+
+This distribution of special attack and attack does not seem to have
+much correlation to it. Most Pokemon tend to have either higher special
+attack or higher attack. As a fan of the games, I know that psychic type
+Pokemon often have high special attack and low regular attack. This
+graph confirms it, as there are three pink dots in the upper left hand
+corner of the graph, which indicate three psychic type Pokemon with high
+special attack and low regular attack, as well as many other psychic
+types in that corner of the graph. Another thing worth noting it the
+obvious straight line that seems to bisect the middle of the graph. This
+indicates that there are many Pokemon that have equal, or almost equal,
+special attack and attack stats.
+
+Next, we can take a look at the number of new Pokemon introduced into
+each generation (1-4). I also wanted to see the number of new
+legendaries introduced as a part of that. To do this, I set fill equal
+to `as.factor(is_legendary)`. By default, this put the legendaries on
+the bottom of the bars, which I thought looked dumb, so I used the
+`fct_rev()` function from the `forcats` package to reverse their order.
 
 ``` r
 # I needed to call in this fct_rev function to put the legendary pokemon on top, since they were on the bottom at first and I didn't like that.
@@ -1516,7 +1520,18 @@ ggplot(myPokeData, aes(x = generation)) + geom_bar(aes(fill = forcats::fct_rev(a
   scale_fill_manual(breaks = c(FALSE, TRUE), values = c("navy", "maroon"), name = " ", labels = c("Is Legendary", "Is Not Legendary"))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](README_files/figure-gfm/total%20pokemon%20by%20generation%20bar%20plot-1.png)<!-- -->
+
+Of the first four generations, Gen 1 had the most Pokemon, but all four
+introduced at least 100 new Pokemon. Gen 1 also had the fewest legendary
+Pokemon, which off the top of my head are the three legendary birds:
+Articuno, Zapdos, and Moltres, as well as Mew and Mewtwo. Gens 3 and 4
+had the most new legendary Pokemon.
+
+My next graph is a histogram of the speed stat for Pokemon in
+generations 1 and 2. I made sure to fill in each bin of the histogram
+with the corresponding colors. I used 25 bins with default binwidth, and
+I also overlaid a kernel density smoother on top of the histogram.
 
 ``` r
 # Subset the data into just gens 1 and 2
@@ -1524,11 +1539,24 @@ gens1and2 <- myPokeData %>% filter(generation < 3)
 #  Create two histograms, one for each generation, with 25 bins for the speed stat.  Overlay a Density plot on each of them.  Customize labels, title, legend, and colors.
 ggplot(gens1and2, aes(x = speed)) + geom_histogram(bins = 25, aes(y = ..density.., fill = generation)) +
   geom_density(aes(fill = generation), alpha = 0.6, position = "stack") + 
-  labs(x = "Speed", y = "Density", title = "Histogram and Kernel Smoother of Speed, by Generation") +
+  labs(x = "Speed", y = "Density", title = "Histogram and Kernel Smoother of Speed for Generations 1 and 2") +
   scale_fill_manual(name = "Generation", breaks = c("1", "2"), values = c("red", "orange"))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](README_files/figure-gfm/speed%20in%20generations%201%20and%202%20histogram-1.png)<!-- -->
+
+At first I looked at this graph and thought “Wow Gen 1 Pokemon were much
+faster”, but then I realized that this is all one histogram and that the
+distribution is about the same for each generation. However, one thing
+that I noticed is that the low end of the histogram is dominated by
+generation 2 Pokemon and the high end of the histogram is mostly Gen 1
+Pokemon, albeit not many. It looks like most Pokemon in these
+generations had a speed of about 40.
+
+Next is a graph of three boxplots of berry size, at each level of
+Natural Gift power. Natural Gift does either 60, 70, or 80 damage and I
+thought that perhaps larger berries would do more damage than smaller
+berries.
 
 ``` r
 # Create a boxplot for size for each value of natural gift power, since it's technically continuous, the colors will be a gradient.
@@ -1538,7 +1566,22 @@ ggplot(myBerryData, aes(x = as.factor(as.character(natural_gift_power)), y = siz
   scale_fill_continuous(name = "Natural Gift Power")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](README_files/figure-gfm/boxplot%20of%20size%20by%20natural%20gift%20powers-1.png)<!-- -->
+
+It appears as though the berries that do more damage are, in fact,
+larger. The medians for 70 and 80 power are higher than 60’s, but the
+spread of 80’s is much larger. Also, there are a couple of outliers in
+the 60 boxplot, indicating that there are a couple abnormally large
+berries that do only 60 damage. Also, I had to explicitly coerce the
+natural_gift_power into three separate categories, since I read it in as
+numeric, but GGPlot still defaults to giving the colors a gradient, I
+tried to fix this but was not sure how to.
+
+The last plot I want to look at is another scatter plot, this time about
+size versus growth time for berries. The intuition behind this is that I
+figured it would take more time to grow larger berries. I also colored
+each berry by its corresponding Natural Gift type, although I don’t
+think there will be much of a pattern with that.
 
 ``` r
 # Created a scatterplot of growth time vs. size, colored by natural gift type. Customized labels and title to make it look nice, also changed the size of legends and points, as well as opacity of points.
@@ -1547,4 +1590,27 @@ ggplot(myBerryData, aes(x = growth_time, y = size, color = natural_gift_type)) +
   scale_color_discrete("Natural Gift Type")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](README_files/figure-gfm/growth%20time%20vs%20size%20scatterplot-1.png)<!-- -->
+
+It appears that there is some positive correlation between size and
+growth time. The graph kind of starts out positively correlated from 1
+to 15, but the categories at 18 and 24 have roughly the same
+distribution. The largest berries generally take 15, 18, or 24 units of
+time to grow.
+
+## Conclusions
+
+Overall, this has been a really fun project for me. While some parts
+were challenging, I found it very convenient how easy it is to read in
+data from an API into an R session. The amount of data that pokeAPI has
+is incredible and leads to an overwhelming amount of possibilities when
+it comes to analysis. I will likely revisit this program in the future
+and see what kinds of interesting graphs or tables I can come up with,
+since Pokemon is something that has always interested me. Working with
+berries was also interesting, since that was a part of the game that I
+mostly overlooked. Despite berries being a minor part of the games, it
+is clear that Game Freak put much thought into them, which is reflected
+in the last scatter plot of growth time and size. I am curious to see if
+I can find any other neat tidbits that flew under my radar, whether it
+be for Pokemon or berries, or data from another endpoint that I can now
+write a function for.
