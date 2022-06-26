@@ -347,7 +347,7 @@ getBerry <- function(berry = NULL, id = NULL){
     # Read in the JSON file from the API with the full URL string
     berryinfo <- fromJSON(fullURL)
   }
-  # Return the info on the pokemon
+  # Return the info on the berry
   return(berryinfo)
 }
 ```
@@ -970,7 +970,7 @@ queryAPI <- function(pokemon = NULL, pokeid = NULL, pokevars = NULL, berry = NUL
   # If some other combination of arguments was passed, it is invalid, return this 
   # error message
   else{
-    stop("Must provided either names and variables or ids and variables for 
+    stop("Must provide either names and variables or ids and variables for 
          pokemon or for berries, not both!")
   }
 }
