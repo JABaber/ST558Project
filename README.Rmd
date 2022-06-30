@@ -13,7 +13,7 @@ Josh Baber  6/26/2022
 
 ## Introduction  
 
-This is a vignette created to interact with the [pokeAPI]("https://pokeapi.co/") which houses just about any and all data related to main series Pokemon games.  This vignette will contain the functions I created to not only pull data from the API, but to parse some of it into workable data and format it into tibbles.  The endpoints I pull from include https://pokeapi.co/api/v2/pokemon/ , https://pokeapi.co/api/v2/berry/ , and https://pokeapi.co/api/v2/pokemon-species/ .  By the end, I will have a `queryAPI()` function that will allow users to query information about any Pokemon or berry, either by name or by id number.  Lastly, I will use my `queryAPI()` function to produce data sets that I can perform some Exploratory Data Analysis on, including plots and tables.  
+This is a vignette created to interact with the [pokeAPI](https://pokeapi.co/) which houses just about any and all data related to main series Pokemon games.  This vignette will contain the functions I created to not only pull data from the API, but to parse some of it into workable data and format it into tibbles.  The endpoints I pull from include https://pokeapi.co/api/v2/pokemon/ , https://pokeapi.co/api/v2/berry/ , and https://pokeapi.co/api/v2/pokemon-species/ .  By the end, I will have a `queryAPI()` function that will allow users to query information about any Pokemon or berry, either by name or by id number.  Lastly, I will use my `queryAPI()` function to produce data sets that I can perform some Exploratory Data Analysis on, including plots and tables.  
 
 ```{r setup, include=FALSE}
 # Ensures all code chunks show by default
@@ -34,9 +34,9 @@ rmarkdown::render('README.Rmd',
 
 Below is a list of packages that were used in this vignette:  
 
-* [jsonlite]("https://www.rdocumentation.org/packages/jsonlite/versions/1.8.0") Needed to convert raw JSON data from the API into lists via the `fromJSON()` function
-* [tidyverse]("https://www.tidyverse.org/") Provided easy data manipulation via functions from [dplyr]("https://dplyr.tidyverse.org/") and graph creation via functions from [ggplot2.]("https://ggplot2.tidyverse.org/")
-* [forcats]("https://forcats.tidyverse.org/") A package I used to implement one specific change I needed regarding one of the graphs.  I used the `fct_rev()` function for this.  
+* [jsonlite](https://www.rdocumentation.org/packages/jsonlite/versions/1.8.0) Needed to convert raw JSON data from the API into lists via the `fromJSON()` function
+* [tidyverse](https://www.tidyverse.org/) Provided easy data manipulation via functions from [dplyr](https://dplyr.tidyverse.org/) and graph creation via functions from [ggplot2.](https://ggplot2.tidyverse.org/)
+* [forcats](https://forcats.tidyverse.org/) A package I used to implement one specific change I needed regarding one of the graphs.  I used the `fct_rev()` function for this.  
 
 ```{r packages}
 # Packages
@@ -51,7 +51,7 @@ library(forcats)
 
 **Please Note That id must be a continuous range from 1 to a number!!**
 
-The first function is going to query data from the "pokemon" endpoint.  It can take in a Pokemon name as a string, or it can take in an id number, which corresponds to a Pokemon's "Pokedex" number.  [A list of Pokemon can be found here.]("https://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_National_Pok%C3%A9dex_number")
+The first function is going to query data from the "pokemon" endpoint.  It can take in a Pokemon name as a string, or it can take in an id number, which corresponds to a Pokemon's "Pokedex" number.  [A list of Pokemon can be found here.](https://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_National_Pok%C3%A9dex_number)
 
 The pokeAPI's information matches up with much of what Bulbapedia has, so it can be useful to consider Bulbapedia in addition to the pokeAPI docs.
 
@@ -227,7 +227,7 @@ fullPokeInfo <- function(pokemon = NULL, id = NULL, vars = all()){
 
 ### `getBerry()` Function
 
-Much like we did for reaching out to the Pokemon endpoints, we can reach out to the "berry" endpoint to return information about berries.  In Pokemon games, berries have many unique properties.  They all have different flavors, growth times, sizes, firmnesses, and more.  [More information about berries can be found here.]("https://bulbapedia.bulbagarden.net/wiki/Berry")
+Much like we did for reaching out to the Pokemon endpoints, we can reach out to the "berry" endpoint to return information about berries.  In Pokemon games, berries have many unique properties.  They all have different flavors, growth times, sizes, firmnesses, and more.  [More information about berries can be found here.](https://bulbapedia.bulbagarden.net/wiki/Berry)
 
 Similar to the `getPokemon()` function, `getBerry()` queries a berry via name or id, then it returns a list of variables from the API that have to do with that particular berry.  
 
@@ -362,7 +362,7 @@ So when it comes to the Pokemon, the problem variables I want to look at are the
 
 #### `getAbilities()` Function  
 
-First I want to start with the  `getAbilities()` function.  It goes into the "abilities" variable for a Pokemon and pulls out the names of the abilities that that Pokemon has.  A Pokemon (with the exception of five or six) has a maximum of three potential abilities, almost all of them have only one or two.  [More information about abilities can be read here]("https://bulbapedia.bulbagarden.net/wiki/Ability")  
+First I want to start with the  `getAbilities()` function.  It goes into the "abilities" variable for a Pokemon and pulls out the names of the abilities that that Pokemon has.  A Pokemon (with the exception of five or six) has a maximum of three potential abilities, almost all of them have only one or two.  [More information about abilities can be read here](https://bulbapedia.bulbagarden.net/wiki/Ability)  
 
 To parse this data, I create a vector for each ability and fill them accordingly for each Pokemon.  Then I return a tibble of three columns for each ability that I can later concatenate with.  
 
@@ -398,7 +398,7 @@ getAbilities <- function(list){
 
 #### `getStats()` Function  
 
-Next, I wrote the `getStats()` function to go into the "stats" variable of a Pokemon.  Every Pokemon has 6 stats: hp (hit points or "health"), attack, defense, special attack, special defense, and speed.  These are technically a Pokemon's base stats, they can get a lot more involved with stuff like IVs and EVs.  [If you want to read more about stats you can here.]("https://bulbapedia.bulbagarden.net/wiki/Stat")  
+Next, I wrote the `getStats()` function to go into the "stats" variable of a Pokemon.  Every Pokemon has 6 stats: hp (hit points or "health"), attack, defense, special attack, special defense, and speed.  These are technically a Pokemon's base stats, they can get a lot more involved with stuff like IVs and EVs.  [If you want to read more about stats you can here.](https://bulbapedia.bulbagarden.net/wiki/Stat)  
 
 To parse this data, I create a vector for each stat and fill them accordingly for each Pokemon.  Then I return a tibble of six columns for each stat that I can later concatenate with.  
 
@@ -432,7 +432,7 @@ getStats <- function(list){
 
 #### `getTypes()` Function  
 
-Lastly for Pokemon, I wrote a `getTypes()` function.  Every Pokemon has at least one type, some Pokemon have two.  No Pokemon has more than two types.  Types are super important in determining a Pokemon's characteristics and battle strategy.  [More information on types can be found here.]("https://bulbapedia.bulbagarden.net/wiki/Type")  
+Lastly for Pokemon, I wrote a `getTypes()` function.  Every Pokemon has at least one type, some Pokemon have two.  No Pokemon has more than two types.  Types are super important in determining a Pokemon's characteristics and battle strategy.  [More information on types can be found here.](https://bulbapedia.bulbagarden.net/wiki/Type)  
 
 To parse this data, I create a vector for each type and fill them accordingly for each pokemon in a list.  Then I return a tibble that has two columns so that I can concatenate it later on.  
 
@@ -487,7 +487,7 @@ getFirmness <- function(list){
 
 #### `getNatGiftType()` Function
 
-Natural Gift is a unique move in the Pokemon games.  It allows for a Pokemon to consume a held berry, and depending on the berry, will do a certain amount of damage and have a certain type.  [You can read more about Natural Gift here]("https://bulbapedia.bulbagarden.net/wiki/Natural_Gift_(move)")  
+Natural Gift is a unique move in the Pokemon games.  It allows for a Pokemon to consume a held berry, and depending on the berry, will do a certain amount of damage and have a certain type.  [You can read more about Natural Gift here](https://bulbapedia.bulbagarden.net/wiki/Natural_Gift_(move))  
 
 This function is relatively simple.  It accesses the "natural_gift_type" variable from each of a list of berries and returns the types as a single column tibble, which can later be concatenated.  
 
@@ -510,8 +510,7 @@ getNatGiftType <- function(list){
 
 #### `getFlavors()` Function  
 
-Every berry has varying values of five flavors.  Flavors include spicy, dry, sweet, bitter, and sour.  In the games, Pokemon of certain natures react differently to flavors and will have preferences.  If you want to read more about flavors you can here:  
-https://bulbapedia.bulbagarden.net/wiki/Flavor  
+Every berry has varying values of five flavors.  Flavors include spicy, dry, sweet, bitter, and sour.  In the games, Pokemon of certain natures react differently to flavors and will have preferences.  [If you want to read more about flavors you can here](https://bulbapedia.bulbagarden.net/wiki/Flavor)  
 
 This function is relatively similar to the `getStats()` function.  It grabs the "flavors" variable for each berry in a list, then initializes empty vectors for each of the five flavors.  Then it iterates through the list and appends the vectors accordingly.  It returns a tibble of flavors which has five columns, which can be concatenated later.  
 
@@ -885,7 +884,7 @@ myBerryData <- queryAPI(berryid = 1:64, berryvars = myBerryVars)
 
 ### Create generation Variable  
 
-The first thing I want to do is create a "generation" variable for the myPokeData data set.  This will basically take the id number (which is also the National Pokedex number) of a Pokemon and bin it into the correct generation.  The list of generations, and their respective cutoffs, [can be found here.]("https://bulbapedia.bulbagarden.net/wiki/Generation")  
+The first thing I want to do is create a "generation" variable for the myPokeData data set.  This will basically take the id number (which is also the National Pokedex number) of a Pokemon and bin it into the correct generation.  The list of generations, and their respective cutoffs, [can be found here.](https://bulbapedia.bulbagarden.net/wiki/Generation)  
 
 To create this variable I created a vector of id integers.  Then I created a vector called "generation" through a bunch of if/else logic based on the generational cutoff values.  Then I appended generation onto myPokeData using the `mutate()` function from `dplyr`.  Lastly, I printed off the `head()` and `tail()` of the new data set to make sure that it worked.  You can use the slider to look at the full code chunk.  
 
@@ -1007,7 +1006,7 @@ summary(myPokeData$hp)
 
 It looks like the average hp for a Pokemon in generations 1 through 4 is about 66.  The Pokemon that has 1 hp is Shedinja, and the Pokemon that has 255 hp is Blissey.  
 
-We can use the `group_by()` and `summarize()` functions to look at custom summary statistics of numeric variables grouped by levels of categorical variables.  Let's see the mean, standard deviation, minimum, and maximum of capture rates, grouped by generation.  The lower a capture rate is, the harder it is to catch in a Pokeball.  [More on capture rates here.]("https://bulbapedia.bulbagarden.net/wiki/Catch_rate")  
+We can use the `group_by()` and `summarize()` functions to look at custom summary statistics of numeric variables grouped by levels of categorical variables.  Let's see the mean, standard deviation, minimum, and maximum of capture rates, grouped by generation.  The lower a capture rate is, the harder it is to catch in a Pokeball.  [More on capture rates here.](https://bulbapedia.bulbagarden.net/wiki/Catch_rate)  
 
 
 ```{r capture rate by generation summary}
@@ -1020,7 +1019,7 @@ myPokeData %>%
 
 It looks like the average capture rates for generations 1 and 3 were higher than generations 2 and 4.  This means that Pokemon in generations 2 and 4 were on average harder to catch, gen 4 especially so.  
 
-Next, let's find the mean, standard deviation, minimum, and maximum of capture rates of legendary Pokemon versus non-legendary Pokemon.  Legendary Pokemon are notoriously hard to catch.  [More on legendary Pokemon here.]("https://bulbapedia.bulbagarden.net/wiki/Legendary_Pok%C3%A9mon")  
+Next, let's find the mean, standard deviation, minimum, and maximum of capture rates of legendary Pokemon versus non-legendary Pokemon.  Legendary Pokemon are notoriously hard to catch.  [More on legendary Pokemon here.](https://bulbapedia.bulbagarden.net/wiki/Legendary_Pok%C3%A9mon)  
 
 
 ```{r capture rate by legendary summary}
@@ -1034,7 +1033,7 @@ myPokeData %>%
 
 The average capture rate for legendary Pokemon is 4.6, whereas it is 104 for non-legendaries.  This shows the huge disparity in how hard legendary Pokemon are to catch.  Even the easiest legendary Pokemon to catch only has a capture rate of 45.  
 
-Baby Pokemon are what they sound like, Pokemon that are babies.  Pokemon must be really small and really weak to be classified as a baby.  Often, they will evolve into much stronger Pokemon, however.  Since baby Pokemon are relatively weak, let's see how they stack up in the attack stat against non-baby Pokemon using summary statistics.  [More on baby Pokemon here.]("https://bulbapedia.bulbagarden.net/wiki/Baby_Pok%C3%A9mon")  
+Baby Pokemon are what they sound like, Pokemon that are babies.  Pokemon must be really small and really weak to be classified as a baby.  Often, they will evolve into much stronger Pokemon, however.  Since baby Pokemon are relatively weak, let's see how they stack up in the attack stat against non-baby Pokemon using summary statistics.  [More on baby Pokemon here.](https://bulbapedia.bulbagarden.net/wiki/Baby_Pok%C3%A9mon)  
 
 
 ```{r attack by baby summary}

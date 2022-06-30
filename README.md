@@ -50,9 +50,9 @@ Josh Baber 6/26/2022
 ## Introduction
 
 This is a vignette created to interact with the
-[pokeAPI](%22https://pokeapi.co/%22) which houses just about any and all
-data related to main series Pokemon games. This vignette will contain
-the functions I created to not only pull data from the API, but to parse
+[pokeAPI](https://pokeapi.co/) which houses just about any and all data
+related to main series Pokemon games. This vignette will contain the
+functions I created to not only pull data from the API, but to parse
 some of it into workable data and format it into tibbles. The endpoints
 I pull from include <https://pokeapi.co/api/v2/pokemon/> ,
 <https://pokeapi.co/api/v2/berry/> , and
@@ -66,14 +66,14 @@ Exploratory Data Analysis on, including plots and tables.
 
 Below is a list of packages that were used in this vignette:
 
--   [jsonlite](%22https://www.rdocumentation.org/packages/jsonlite/versions/1.8.0%22)
+-   [jsonlite](https://www.rdocumentation.org/packages/jsonlite/versions/1.8.0)
     Needed to convert raw JSON data from the API into lists via the
     `fromJSON()` function
--   [tidyverse](%22https://www.tidyverse.org/%22) Provided easy data
+-   [tidyverse](https://www.tidyverse.org/) Provided easy data
     manipulation via functions from
-    [dplyr](%22https://dplyr.tidyverse.org/%22) and graph creation via
-    functions from [ggplot2.](%22https://ggplot2.tidyverse.org/%22)
--   [forcats](%22https://forcats.tidyverse.org/%22) A package I used to
+    [dplyr](https://dplyr.tidyverse.org/) and graph creation via
+    functions from [ggplot2.](https://ggplot2.tidyverse.org/)
+-   [forcats](https://forcats.tidyverse.org/) A package I used to
     implement one specific change I needed regarding one of the graphs.
     I used the `fct_rev()` function for this.
 
@@ -81,6 +81,21 @@ Below is a list of packages that were used in this vignette:
 # Packages
 library(jsonlite)
 library(tidyverse)
+```
+
+    ## ── Attaching packages ──────────
+
+    ## ✔ ggplot2 3.3.6     ✔ purrr   0.3.4
+    ## ✔ tibble  3.1.7     ✔ dplyr   1.0.9
+    ## ✔ tidyr   1.2.0     ✔ stringr 1.4.0
+    ## ✔ readr   2.1.2     ✔ forcats 0.5.1
+
+    ## ── Conflicts ───────────────────
+    ## ✖ dplyr::filter()  masks stats::filter()
+    ## ✖ purrr::flatten() masks jsonlite::flatten()
+    ## ✖ dplyr::lag()     masks stats::lag()
+
+``` r
 library(forcats)
 ```
 
@@ -94,7 +109,7 @@ The first function is going to query data from the “pokemon” endpoint.
 It can take in a Pokemon name as a string, or it can take in an id
 number, which corresponds to a Pokemon’s “Pokedex” number. [A list of
 Pokemon can be found
-here.](%22https://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_National_Pok%C3%A9dex_number%22)
+here.](https://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_National_Pok%C3%A9dex_number)
 
 The pokeAPI’s information matches up with much of what Bulbapedia has,
 so it can be useful to consider Bulbapedia in addition to the pokeAPI
@@ -300,7 +315,7 @@ out to the “berry” endpoint to return information about berries. In
 Pokemon games, berries have many unique properties. They all have
 different flavors, growth times, sizes, firmnesses, and more. [More
 information about berries can be found
-here.](%22https://bulbapedia.bulbagarden.net/wiki/Berry%22)
+here.](https://bulbapedia.bulbagarden.net/wiki/Berry)
 
 Similar to the `getPokemon()` function, `getBerry()` queries a berry via
 name or id, then it returns a list of variables from the API that have
@@ -469,7 +484,7 @@ the “abilities” variable for a Pokemon and pulls out the names of the
 abilities that that Pokemon has. A Pokemon (with the exception of five
 or six) has a maximum of three potential abilities, almost all of them
 have only one or two. [More information about abilities can be read
-here](%22https://bulbapedia.bulbagarden.net/wiki/Ability%22)
+here](https://bulbapedia.bulbagarden.net/wiki/Ability)
 
 To parse this data, I create a vector for each ability and fill them
 accordingly for each Pokemon. Then I return a tibble of three columns
@@ -512,7 +527,7 @@ of a Pokemon. Every Pokemon has 6 stats: hp (hit points or “health”),
 attack, defense, special attack, special defense, and speed. These are
 technically a Pokemon’s base stats, they can get a lot more involved
 with stuff like IVs and EVs. [If you want to read more about stats you
-can here.](%22https://bulbapedia.bulbagarden.net/wiki/Stat%22)
+can here.](https://bulbapedia.bulbagarden.net/wiki/Stat)
 
 To parse this data, I create a vector for each stat and fill them
 accordingly for each Pokemon. Then I return a tibble of six columns for
@@ -552,7 +567,7 @@ Lastly for Pokemon, I wrote a `getTypes()` function. Every Pokemon has
 at least one type, some Pokemon have two. No Pokemon has more than two
 types. Types are super important in determining a Pokemon’s
 characteristics and battle strategy. [More information on types can be
-found here.](%22https://bulbapedia.bulbagarden.net/wiki/Type%22)
+found here.](https://bulbapedia.bulbagarden.net/wiki/Type)
 
 To parse this data, I create a vector for each type and fill them
 accordingly for each pokemon in a list. Then I return a tibble that has
@@ -621,7 +636,7 @@ Natural Gift is a unique move in the Pokemon games. It allows for a
 Pokemon to consume a held berry, and depending on the berry, will do a
 certain amount of damage and have a certain type. [You can read more
 about Natural Gift
-here](%22https://bulbapedia.bulbagarden.net/wiki/Natural_Gift_(move)%22)
+here](https://bulbapedia.bulbagarden.net/wiki/Natural_Gift_(move))
 
 This function is relatively simple. It accesses the “natural_gift_type”
 variable from each of a list of berries and returns the types as a
@@ -648,9 +663,9 @@ getNatGiftType <- function(list){
 
 Every berry has varying values of five flavors. Flavors include spicy,
 dry, sweet, bitter, and sour. In the games, Pokemon of certain natures
-react differently to flavors and will have preferences. If you want to
-read more about flavors you can here:  
-<https://bulbapedia.bulbagarden.net/wiki/Flavor>
+react differently to flavors and will have preferences. [If you want to
+read more about flavors you can
+here](https://bulbapedia.bulbagarden.net/wiki/Flavor)
 
 This function is relatively similar to the `getStats()` function. It
 grabs the “flavors” variable for each berry in a list, then initializes
@@ -1005,17 +1020,20 @@ queryAPI(pokemon = c("pikachu", "mewtwo", "greninja", "igglybuff", "rayquaza"),
 ```
 
     ## # A tibble: 5 × 19
-    ##   name     id    height weight capture_rate is_baby is_legendary
-    ##   <chr>    <chr>  <int>  <int>        <int> <lgl>   <lgl>       
-    ## 1 pikachu  25         4     60          190 FALSE   FALSE       
-    ## 2 mewtwo   150       20   1220            3 FALSE   TRUE        
-    ## 3 greninja 658       15    400           45 FALSE   FALSE       
-    ## 4 igglybu… 174        3     10          170 TRUE    FALSE       
-    ## 5 rayquaza 384       70   2065           45 FALSE   TRUE        
-    ## # … with 12 more variables: is_mythical <lgl>, type1 <chr>,
-    ## #   type2 <chr>, ability1 <chr>, ability2 <chr>,
-    ## #   ability3 <chr>, hp <int>, attack <int>, defense <int>,
-    ## #   special_attack <int>, special_defense <int>, speed <int>
+    ##   name      id    height weight
+    ##   <chr>     <chr>  <int>  <int>
+    ## 1 pikachu   25         4     60
+    ## 2 mewtwo    150       20   1220
+    ## 3 greninja  658       15    400
+    ## 4 igglybuff 174        3     10
+    ## 5 rayquaza  384       70   2065
+    ## # … with 15 more variables:
+    ## #   capture_rate <int>,
+    ## #   is_baby <lgl>,
+    ## #   is_legendary <lgl>,
+    ## #   is_mythical <lgl>,
+    ## #   type1 <chr>, type2 <chr>,
+    ## #   ability1 <chr>, …
 
 This returns a tibble for each of the first 10 Pokemon in the Pokedex
 containing all of the variables I want.
@@ -1026,22 +1044,25 @@ queryAPI(pokeid = c(1:10), pokevars = myPokeVars)
 ```
 
     ## # A tibble: 10 × 19
-    ##    name    id    height weight capture_rate is_baby is_legendary
-    ##    <chr>   <chr>  <int>  <int>        <int> <lgl>   <lgl>       
-    ##  1 bulbas… 1          7     69           45 FALSE   FALSE       
-    ##  2 ivysaur 2         10    130           45 FALSE   FALSE       
-    ##  3 venusa… 3         20   1000           45 FALSE   FALSE       
-    ##  4 charma… 4          6     85           45 FALSE   FALSE       
-    ##  5 charme… 5         11    190           45 FALSE   FALSE       
-    ##  6 chariz… 6         17    905           45 FALSE   FALSE       
-    ##  7 squirt… 7          5     90           45 FALSE   FALSE       
-    ##  8 wartor… 8         10    225           45 FALSE   FALSE       
-    ##  9 blasto… 9         16    855           45 FALSE   FALSE       
-    ## 10 caterp… 10         3     29          255 FALSE   FALSE       
-    ## # … with 12 more variables: is_mythical <lgl>, type1 <chr>,
-    ## #   type2 <chr>, ability1 <chr>, ability2 <chr>,
-    ## #   ability3 <chr>, hp <int>, attack <int>, defense <int>,
-    ## #   special_attack <int>, special_defense <int>, speed <int>
+    ##    name      id    height weight
+    ##    <chr>     <chr>  <int>  <int>
+    ##  1 bulbasaur 1          7     69
+    ##  2 ivysaur   2         10    130
+    ##  3 venusaur  3         20   1000
+    ##  4 charmand… 4          6     85
+    ##  5 charmele… 5         11    190
+    ##  6 charizard 6         17    905
+    ##  7 squirtle  7          5     90
+    ##  8 wartortle 8         10    225
+    ##  9 blastoise 9         16    855
+    ## 10 caterpie  10         3     29
+    ## # … with 15 more variables:
+    ## #   capture_rate <int>,
+    ## #   is_baby <lgl>,
+    ## #   is_legendary <lgl>,
+    ## #   is_mythical <lgl>,
+    ## #   type1 <chr>, type2 <chr>,
+    ## #   ability1 <chr>, …
 
 This returns a tibble for Cheri, Rawst, and Chesto berries containing
 all of the variables that I want.
@@ -1052,15 +1073,18 @@ queryAPI(berry = c("cheri", "rawst", "chesto"), berryvars = myBerryVars)
 ```
 
     ## # A tibble: 3 × 16
-    ##   name   id    growth_time max_harvest natural_gift_power  size
-    ##   <chr>  <chr>       <int>       <int>              <int> <int>
-    ## 1 cheri  1               3           5                 60    20
-    ## 2 rawst  4               3           5                 60    32
-    ## 3 chesto 2               3           5                 60    80
-    ## # … with 10 more variables: smoothness <int>,
-    ## #   soil_dryness <int>, spicy <int>, dry <int>, sweet <int>,
-    ## #   bitter <int>, sour <int>, natural_gift_type <chr>,
-    ## #   firmness <chr>, item_name <chr>
+    ##   name   id    growth_time
+    ##   <chr>  <chr>       <int>
+    ## 1 cheri  1               3
+    ## 2 rawst  4               3
+    ## 3 chesto 2               3
+    ## # … with 13 more variables:
+    ## #   max_harvest <int>,
+    ## #   natural_gift_power <int>,
+    ## #   size <int>,
+    ## #   smoothness <int>,
+    ## #   soil_dryness <int>,
+    ## #   spicy <int>, dry <int>, …
 
 This returns a tibble for all of the berries (there are 64 total)
 containing all of the variables that I want.
@@ -1071,22 +1095,25 @@ queryAPI(berryid = 1:64, berryvars = myBerryVars)
 ```
 
     ## # A tibble: 64 × 16
-    ##    name   id    growth_time max_harvest natural_gift_power  size
-    ##    <chr>  <chr>       <int>       <int>              <int> <int>
-    ##  1 cheri  1               3           5                 60    20
-    ##  2 chesto 2               3           5                 60    80
-    ##  3 pecha  3               3           5                 60    40
-    ##  4 rawst  4               3           5                 60    32
-    ##  5 aspear 5               3           5                 60    50
-    ##  6 leppa  6               4           5                 60    28
-    ##  7 oran   7               4           5                 60    35
-    ##  8 persim 8               4           5                 60    47
-    ##  9 lum    9              12           5                 60    34
-    ## 10 sitrus 10              8           5                 60    95
-    ## # … with 54 more rows, and 10 more variables: smoothness <int>,
-    ## #   soil_dryness <int>, spicy <int>, dry <int>, sweet <int>,
-    ## #   bitter <int>, sour <int>, natural_gift_type <chr>,
-    ## #   firmness <chr>, item_name <chr>
+    ##    name   id    growth_time
+    ##    <chr>  <chr>       <int>
+    ##  1 cheri  1               3
+    ##  2 chesto 2               3
+    ##  3 pecha  3               3
+    ##  4 rawst  4               3
+    ##  5 aspear 5               3
+    ##  6 leppa  6               4
+    ##  7 oran   7               4
+    ##  8 persim 8               4
+    ##  9 lum    9              12
+    ## 10 sitrus 10              8
+    ## # … with 54 more rows, and 13
+    ## #   more variables:
+    ## #   max_harvest <int>,
+    ## #   natural_gift_power <int>,
+    ## #   size <int>,
+    ## #   smoothness <int>,
+    ## #   soil_dryness <int>, …
 
 ## Exploratory Data Analysis (EDA)
 
@@ -1140,7 +1167,7 @@ myPokeData data set. This will basically take the id number (which is
 also the National Pokedex number) of a Pokemon and bin it into the
 correct generation. The list of generations, and their respective
 cutoffs, [can be found
-here.](%22https://bulbapedia.bulbagarden.net/wiki/Generation%22)
+here.](https://bulbapedia.bulbagarden.net/wiki/Generation)
 
 To create this variable I created a vector of id integers. Then I
 created a vector called “generation” through a bunch of if/else logic
@@ -1219,12 +1246,18 @@ table(myPokeData$type1)
 ```
 
     ## 
-    ##      bug     dark   dragon electric    fairy fighting     fire 
-    ##       42       12       13       26        8       15       31 
-    ##    ghost    grass   ground      ice   normal   poison  psychic 
-    ##       14       46       21       15       72       24       30 
-    ##     rock    steel    water 
-    ##       27       14       83
+    ##      bug     dark   dragon 
+    ##       42       12       13 
+    ## electric    fairy fighting 
+    ##       26        8       15 
+    ##     fire    ghost    grass 
+    ##       31       14       46 
+    ##   ground      ice   normal 
+    ##       21       15       72 
+    ##   poison  psychic     rock 
+    ##       24       30       27 
+    ##    steel    water 
+    ##       14       83
 
 Looks like water is by far the most common type in the first four
 generations with 83 Pokemon, with normal not far behind at 72. The least
@@ -1238,12 +1271,18 @@ table(myPokeData$type2)
 ```
 
     ## 
-    ##      bug     dark   dragon electric    fairy fighting     fire 
-    ##        3       11        6        2       12       10        2 
-    ##   flying    ghost    grass   ground      ice     none   poison 
-    ##       64        4        9       26        7      258       26 
-    ##  psychic     rock    steel    water 
-    ##       23       10       11        9
+    ##      bug     dark   dragon 
+    ##        3       11        6 
+    ## electric    fairy fighting 
+    ##        2       12       10 
+    ##     fire   flying    ghost 
+    ##        2       64        4 
+    ##    grass   ground      ice 
+    ##        9       26        7 
+    ##     none   poison  psychic 
+    ##      258       26       23 
+    ##     rock    steel    water 
+    ##       10       11        9
 
 258 Pokemon have a single type, more than half of the 493 Pokemon. Of
 the second types, the most common was flying at 64 and the least common
@@ -1258,62 +1297,138 @@ table(myPokeData$type1, myPokeData$type2)
 ```
 
     ##           
-    ##            bug dark dragon electric fairy fighting fire flying
-    ##   bug        0    0      0        0     0        1    0     12
-    ##   dark       0    0      0        0     0        0    2      2
-    ##   dragon     0    0      0        0     0        0    0      4
-    ##   electric   0    0      0        0     0        0    0      1
-    ##   fairy      0    0      0        0     0        0    0      2
-    ##   fighting   0    0      0        0     0        0    0      0
-    ##   fire       0    0      0        0     0        4    0      3
-    ##   ghost      0    1      1        0     0        0    0      2
-    ##   grass      0    3      0        0     0        1    0      4
-    ##   ground     0    0      2        0     0        0    0      2
-    ##   ice        0    0      0        0     0        0    0      2
-    ##   normal     0    0      0        0     4        0    0     17
-    ##   poison     1    3      0        0     0        2    0      3
-    ##   psychic    0    0      0        0     5        1    0      3
-    ##   rock       2    1      0        0     0        0    0      1
-    ##   steel      0    0      1        0     1        0    0      1
-    ##   water      0    3      2        2     2        1    0      5
+    ##            bug dark dragon
+    ##   bug        0    0      0
+    ##   dark       0    0      0
+    ##   dragon     0    0      0
+    ##   electric   0    0      0
+    ##   fairy      0    0      0
+    ##   fighting   0    0      0
+    ##   fire       0    0      0
+    ##   ghost      0    1      1
+    ##   grass      0    3      0
+    ##   ground     0    0      2
+    ##   ice        0    0      0
+    ##   normal     0    0      0
+    ##   poison     1    3      0
+    ##   psychic    0    0      0
+    ##   rock       2    1      0
+    ##   steel      0    0      1
+    ##   water      0    3      2
     ##           
-    ##            ghost grass ground ice none poison psychic rock
-    ##   bug          1     3      1   0   12      8       0    1
-    ##   dark         1     0      0   2    5      0       0    0
-    ##   dragon       0     0      3   0    4      0       2    0
-    ##   electric     1     0      0   0   21      0       0    0
-    ##   fairy        0     0      0   0    6      0       0    0
-    ##   fighting     0     0      0   0   12      0       2    0
-    ##   fire         0     0      2   0   20      0       0    1
-    ##   ghost        0     0      0   0    7      3       0    0
-    ##   grass        0     0      1   2   21     12       2    0
-    ##   ground       0     0      0   0   12      0       2    3
-    ##   ice          1     0      3   0    4      0       2    0
-    ##   normal       0     0      0   0   49      0       1    0
-    ##   poison       0     0      2   0   13      0       0    0
-    ##   psychic      0     1      0   0   20      0       0    0
-    ##   rock         0     2      6   0    6      0       2    0
-    ##   steel        0     0      1   0    1      0       6    3
-    ##   water        0     3      7   3   45      3       4    2
+    ##            electric fairy
+    ##   bug             0     0
+    ##   dark            0     0
+    ##   dragon          0     0
+    ##   electric        0     0
+    ##   fairy           0     0
+    ##   fighting        0     0
+    ##   fire            0     0
+    ##   ghost           0     0
+    ##   grass           0     0
+    ##   ground          0     0
+    ##   ice             0     0
+    ##   normal          0     4
+    ##   poison          0     0
+    ##   psychic         0     5
+    ##   rock            0     0
+    ##   steel           0     1
+    ##   water           2     2
     ##           
-    ##            steel water
-    ##   bug          2     1
-    ##   dark         0     0
-    ##   dragon       0     0
-    ##   electric     3     0
-    ##   fairy        0     0
-    ##   fighting     1     0
-    ##   fire         1     0
-    ##   ghost        0     0
-    ##   grass        0     0
-    ##   ground       0     0
-    ##   ice          0     3
-    ##   normal       0     1
-    ##   poison       0     0
-    ##   psychic      0     0
-    ##   rock         3     4
-    ##   steel        0     0
-    ##   water        1     0
+    ##            fighting fire flying
+    ##   bug             1    0     12
+    ##   dark            0    2      2
+    ##   dragon          0    0      4
+    ##   electric        0    0      1
+    ##   fairy           0    0      2
+    ##   fighting        0    0      0
+    ##   fire            4    0      3
+    ##   ghost           0    0      2
+    ##   grass           1    0      4
+    ##   ground          0    0      2
+    ##   ice             0    0      2
+    ##   normal          0    0     17
+    ##   poison          2    0      3
+    ##   psychic         1    0      3
+    ##   rock            0    0      1
+    ##   steel           0    0      1
+    ##   water           1    0      5
+    ##           
+    ##            ghost grass ground
+    ##   bug          1     3      1
+    ##   dark         1     0      0
+    ##   dragon       0     0      3
+    ##   electric     1     0      0
+    ##   fairy        0     0      0
+    ##   fighting     0     0      0
+    ##   fire         0     0      2
+    ##   ghost        0     0      0
+    ##   grass        0     0      1
+    ##   ground       0     0      0
+    ##   ice          1     0      3
+    ##   normal       0     0      0
+    ##   poison       0     0      2
+    ##   psychic      0     1      0
+    ##   rock         0     2      6
+    ##   steel        0     0      1
+    ##   water        0     3      7
+    ##           
+    ##            ice none poison
+    ##   bug        0   12      8
+    ##   dark       2    5      0
+    ##   dragon     0    4      0
+    ##   electric   0   21      0
+    ##   fairy      0    6      0
+    ##   fighting   0   12      0
+    ##   fire       0   20      0
+    ##   ghost      0    7      3
+    ##   grass      2   21     12
+    ##   ground     0   12      0
+    ##   ice        0    4      0
+    ##   normal     0   49      0
+    ##   poison     0   13      0
+    ##   psychic    0   20      0
+    ##   rock       0    6      0
+    ##   steel      0    1      0
+    ##   water      3   45      3
+    ##           
+    ##            psychic rock steel
+    ##   bug            0    1     2
+    ##   dark           0    0     0
+    ##   dragon         2    0     0
+    ##   electric       0    0     3
+    ##   fairy          0    0     0
+    ##   fighting       2    0     1
+    ##   fire           0    1     1
+    ##   ghost          0    0     0
+    ##   grass          2    0     0
+    ##   ground         2    3     0
+    ##   ice            2    0     0
+    ##   normal         1    0     0
+    ##   poison         0    0     0
+    ##   psychic        0    0     0
+    ##   rock           2    0     3
+    ##   steel          6    3     0
+    ##   water          4    2     1
+    ##           
+    ##            water
+    ##   bug          1
+    ##   dark         0
+    ##   dragon       0
+    ##   electric     0
+    ##   fairy        0
+    ##   fighting     0
+    ##   fire         0
+    ##   ghost        0
+    ##   grass        0
+    ##   ground       0
+    ##   ice          3
+    ##   normal       1
+    ##   poison       0
+    ##   psychic      0
+    ##   rock         4
+    ##   steel        0
+    ##   water        0
 
 Since there are 17 types, this table is mostly 0s, but the most common
 types were normal/none and water/none. Of the Pokemon with second types,
@@ -1362,12 +1477,18 @@ table(myBerryData$natural_gift_type)
 ```
 
     ## 
-    ##      bug     dark   dragon electric fighting     fire   flying 
-    ##        4        4        4        4        4        4        4 
-    ##    ghost    grass   ground      ice   normal   poison  psychic 
-    ##        4        4        4        4        1        4        4 
-    ##     rock    steel    water 
-    ##        4        3        4
+    ##      bug     dark   dragon 
+    ##        4        4        4 
+    ## electric fighting     fire 
+    ##        4        4        4 
+    ##   flying    ghost    grass 
+    ##        4        4        4 
+    ##   ground      ice   normal 
+    ##        4        4        1 
+    ##   poison  psychic     rock 
+    ##        4        4        4 
+    ##    steel    water 
+    ##        3        4
 
 It looks like most Natural Gift types have 4 corresponding berries, but
 normal only has 1 (which is the Chilan Berry). Steel has 3.
@@ -1397,10 +1518,15 @@ table(myBerryData$natural_gift_power, myBerryData$firmness)
 ```
 
     ##     
-    ##      hard soft super-hard very-hard very-soft
-    ##   60    6    9          8         5         5
-    ##   70    6    5          2         2         1
-    ##   80    3    4          2         4         2
+    ##      hard soft super-hard
+    ##   60    6    9          8
+    ##   70    6    5          2
+    ##   80    3    4          2
+    ##     
+    ##      very-hard very-soft
+    ##   60         5         5
+    ##   70         2         1
+    ##   80         4         2
 
 Again, not much meaning here. Some berries are hard and do less damage,
 others are soft and do more damage. Doesn’t really make sense.
@@ -1418,8 +1544,10 @@ summary of a variable. Let’s see the five-number summary of hp.
 summary(myPokeData$hp)
 ```
 
-    ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-    ##    1.00   50.00   65.00   67.91   80.00  255.00
+    ##    Min. 1st Qu.  Median    Mean 
+    ##    1.00   50.00   65.00   67.91 
+    ## 3rd Qu.    Max. 
+    ##   80.00  255.00
 
 It looks like the average hp for a Pokemon in generations 1 through 4 is
 about 66. The Pokemon that has 1 hp is Shedinja, and the Pokemon that
@@ -1430,7 +1558,7 @@ custom summary statistics of numeric variables grouped by levels of
 categorical variables. Let’s see the mean, standard deviation, minimum,
 and maximum of capture rates, grouped by generation. The lower a capture
 rate is, the harder it is to catch in a Pokeball. [More on capture rates
-here.](%22https://bulbapedia.bulbagarden.net/wiki/Catch_rate%22)
+here.](https://bulbapedia.bulbagarden.net/wiki/Catch_rate)
 
 ``` r
 # Get numerical summaries for capture rates of pokemon across each generation
@@ -1441,12 +1569,14 @@ myPokeData %>%
 ```
 
     ## # A tibble: 4 × 5
-    ##   generation  mean    sd   min   max
-    ##   <chr>      <dbl> <dbl> <int> <int>
-    ## 1 1          106.   77.1     3   255
-    ## 2 2           91.9  71.7     3   255
-    ## 3 3          113.   83.8     3   255
-    ## 4 4           78.9  69.5     3   255
+    ##   generation  mean    sd   min
+    ##   <chr>      <dbl> <dbl> <int>
+    ## 1 1          106.   77.1     3
+    ## 2 2           91.9  71.7     3
+    ## 3 3          113.   83.8     3
+    ## 4 4           78.9  69.5     3
+    ## # … with 1 more variable:
+    ## #   max <int>
 
 It looks like the average capture rates for generations 1 and 3 were
 higher than generations 2 and 4. This means that Pokemon in generations
@@ -1456,7 +1586,7 @@ Next, let’s find the mean, standard deviation, minimum, and maximum of
 capture rates of legendary Pokemon versus non-legendary Pokemon.
 Legendary Pokemon are notoriously hard to catch. [More on legendary
 Pokemon
-here.](%22https://bulbapedia.bulbagarden.net/wiki/Legendary_Pok%C3%A9mon%22)
+here.](https://bulbapedia.bulbagarden.net/wiki/Legendary_Pok%C3%A9mon)
 
 ``` r
 # Get numerical summaries for capture rates of pokemon based on whether or not 
@@ -1468,10 +1598,12 @@ myPokeData %>%
 ```
 
     ## # A tibble: 2 × 5
-    ##   is_legendary   mean    sd   min   max
-    ##   <lgl>         <dbl> <dbl> <int> <int>
-    ## 1 FALSE        105.   76.0      3   255
-    ## 2 TRUE           4.62  8.24     3    45
+    ##   is_legendary   mean    sd
+    ##   <lgl>         <dbl> <dbl>
+    ## 1 FALSE        105.   76.0 
+    ## 2 TRUE           4.62  8.24
+    ## # … with 2 more variables:
+    ## #   min <int>, max <int>
 
 The average capture rate for legendary Pokemon is 4.6, whereas it is 104
 for non-legendaries. This shows the huge disparity in how hard legendary
@@ -1483,7 +1615,7 @@ must be really small and really weak to be classified as a baby. Often,
 they will evolve into much stronger Pokemon, however. Since baby Pokemon
 are relatively weak, let’s see how they stack up in the attack stat
 against non-baby Pokemon using summary statistics. [More on baby Pokemon
-here.](%22https://bulbapedia.bulbagarden.net/wiki/Baby_Pok%C3%A9mon%22)
+here.](https://bulbapedia.bulbagarden.net/wiki/Baby_Pok%C3%A9mon)
 
 ``` r
 # Get numerical summaries for attack stat of pokemon based on whether or not they 
@@ -1495,10 +1627,12 @@ myPokeData %>%
 ```
 
     ## # A tibble: 2 × 5
-    ##   is_baby  mean    sd   min   max
-    ##   <lgl>   <dbl> <dbl> <int> <int>
-    ## 1 FALSE    74.9  28.6     5   165
-    ## 2 TRUE     39.2  24.1     5    85
+    ##   is_baby  mean    sd   min
+    ##   <lgl>   <dbl> <dbl> <int>
+    ## 1 FALSE    74.9  28.6     5
+    ## 2 TRUE     39.2  24.1     5
+    ## # … with 1 more variable:
+    ## #   max <int>
 
 It looks like babies are weaker, but not by a huge amount. The average
 attack for a non-baby Pokemon is about 75 and the average attack for a
@@ -1518,11 +1652,13 @@ myBerryData %>%
 ```
 
     ## # A tibble: 3 × 5
-    ##   natural_gift_power  mean    sd   min   max
-    ##                <int> <dbl> <dbl> <int> <int>
-    ## 1                 60 11.5   6.99     2    18
-    ## 2                 70  6.88  3.98     2    15
-    ## 3                 80 22.2   3.73    15    24
+    ##   natural_gift_power  mean    sd
+    ##                <int> <dbl> <dbl>
+    ## 1                 60 11.5   6.99
+    ## 2                 70  6.88  3.98
+    ## 3                 80 22.2   3.73
+    ## # … with 2 more variables:
+    ## #   min <int>, max <int>
 
 It looks like berries that do more damage take longer to grow. This
 makes sense, since they should be harder to obtain.
@@ -1538,13 +1674,15 @@ myBerryData %>%
 ```
 
     ## # A tibble: 5 × 5
-    ##   firmness    mean    sd   min   max
-    ##   <chr>      <dbl> <dbl> <int> <int>
-    ## 1 hard        119.  59.9    32   280
-    ## 2 soft        120.  82.1    20   252
-    ## 3 super-hard  120.  97.6    34   285
-    ## 4 very-hard   122.  76.3    28   278
-    ## 5 very-soft   124. 118.     28   300
+    ##   firmness    mean    sd   min
+    ##   <chr>      <dbl> <dbl> <int>
+    ## 1 hard        119.  59.9    32
+    ## 2 soft        120.  82.1    20
+    ## 3 super-hard  120.  97.6    34
+    ## 4 very-hard   122.  76.3    28
+    ## 5 very-soft   124. 118.     28
+    ## # … with 1 more variable:
+    ## #   max <int>
 
 It appears that the average size remains relatively constant, near 120,
 for each level of firmness.
